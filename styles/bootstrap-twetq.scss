@@ -1,0 +1,194 @@
+@import "../node_modules/bootstrap/scss/functions";
+
+$primary: #087f7b;
+$secondary: #64748b;
+$success: #16845b;
+$danger: #b63f3f;
+$warning: #a36a13;
+$dark: #24313b;
+$light: #f7faf9;
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 32.5rem,
+  md: 40rem,
+  lg: 47.5rem,
+  xl: 61.3125rem,
+  xxl: 80rem
+);
+
+$container-max-widths: (xl: 80rem);
+
+$grid-gutter-width: 1.5rem;
+$container-padding-x: $grid-gutter-width;
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: clamp(.375rem, .3rem + .2vw, .5rem),
+  2: clamp(.625rem, .5rem + .35vw, .875rem),
+  3: clamp(.875rem, .7rem + .55vw, 1.25rem),
+  4: clamp(1.125rem, .85rem + .9vw, 1.75rem),
+  5: clamp(1.5rem, 1rem + 1.6vw, 2.75rem)
+);
+
+$font-family-sans-serif: "Noto Sans TC", "Segoe UI", ui-sans-serif, sans-serif;
+$headings-font-family: "Bahnschrift", "Noto Sans TC", ui-sans-serif, sans-serif;
+$border-radius: .375rem;
+$border-radius-lg: .625rem;
+$border-radius-sm: .375rem;
+$btn-border-radius: $border-radius;
+$input-border-radius: $border-radius;
+$card-border-radius: $border-radius-lg;
+$enable-cssgrid: true;
+
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/variables-dark";
+@import "../node_modules/bootstrap/scss/maps";
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/utilities";
+
+@import "../node_modules/bootstrap/scss/root";
+@import "../node_modules/bootstrap/scss/containers";
+@import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/tables";
+@import "../node_modules/bootstrap/scss/forms";
+@import "../node_modules/bootstrap/scss/buttons";
+@import "../node_modules/bootstrap/scss/card";
+@import "../node_modules/bootstrap/scss/nav";
+@import "../node_modules/bootstrap/scss/navbar";
+@import "../node_modules/bootstrap/scss/alert";
+@import "../node_modules/bootstrap/scss/transitions";
+@import "../node_modules/bootstrap/scss/helpers";
+@import "../node_modules/bootstrap/scss/utilities/api";
+
+:root {
+  --twetq-page-max: 80rem;
+  --twetq-page-gutter: clamp(.75rem, 2.2vw, 2rem);
+  --twetq-header-brand-row: clamp(3.75rem, 3.5rem + .5vw, 4rem);
+  --twetq-header-nav-row: clamp(2.75rem, 2.5rem + .45vw, 3rem);
+  --twetq-header-total: calc(var(--twetq-header-brand-row) + var(--twetq-header-nav-row));
+  --twetq-mobile-header: clamp(3.5rem, 3.2rem + 1vw, 3.875rem);
+}
+
+.twetq-shell.container-fluid {
+  inline-size: 100%;
+  max-inline-size: var(--twetq-page-max);
+  margin-inline: auto;
+  padding-inline: var(--twetq-page-gutter) !important;
+}
+
+.twetq-footer {
+  inline-size: 100% !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+body[data-mode] .twetq-footer-row.container-fluid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  inline-size: 100%;
+  max-inline-size: var(--twetq-page-max);
+  margin-inline: auto;
+  min-inline-size: 0 !important;
+  gap: map-get($spacers, 2) !important;
+  padding-block: map-get($spacers, 3) !important;
+  padding-inline: var(--twetq-page-gutter) !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.twetq-footer-row :where(.footer-brand, .footer-links, .footer-legal) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+}
+
+.twetq-footer-row .footer-links a,
+.twetq-footer-row .footer-legal a {
+  overflow-wrap: anywhere;
+}
+
+.twetq-header.navbar {
+  position: fixed !important;
+  inset: 0 0 auto;
+  z-index: var(--bs-zindex-sticky, 1020);
+  display: grid !important;
+  inline-size: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.twetq-brand-row {
+  display: flex !important;
+  align-items: center !important;
+  inline-size: min(var(--twetq-page-max), calc(100% - var(--twetq-page-gutter) - var(--twetq-page-gutter))) !important;
+  margin-inline: auto !important;
+}
+
+.twetq-nav-row.navbar-nav {
+  flex-direction: row !important;
+  inline-size: 100% !important;
+  margin: 0 !important;
+  overflow-x: auto;
+}
+
+.twetq-nav-row .nav-link {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: max-content;
+}
+
+@include media-breakpoint-up(xl) {
+  body[data-mode] .twetq-footer-row.container-fluid {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: map-get($spacers, 4) !important;
+  }
+
+  .twetq-shell.container-fluid {
+    padding-top: calc(var(--twetq-header-total) + map-get($spacers, 4)) !important;
+  }
+
+  .twetq-header.navbar {
+    block-size: var(--twetq-header-total) !important;
+    min-block-size: var(--twetq-header-total) !important;
+    grid-template-rows: var(--twetq-header-brand-row) var(--twetq-header-nav-row) !important;
+  }
+
+  .twetq-brand-row {
+    block-size: var(--twetq-header-brand-row) !important;
+  }
+
+  .twetq-nav-row.navbar-nav {
+    block-size: var(--twetq-header-nav-row) !important;
+    padding-inline: max(var(--twetq-page-gutter), calc((100vw - var(--twetq-page-max)) / 2)) !important;
+  }
+
+  .twetq-nav-row .nav-link {
+    min-block-size: var(--twetq-header-nav-row) !important;
+  }
+}
+
+@include media-breakpoint-down(xl) {
+  .twetq-shell.container-fluid {
+    padding-top: calc(var(--twetq-mobile-header) + map-get($spacers, 3)) !important;
+  }
+
+  .twetq-header.navbar {
+    min-block-size: var(--twetq-mobile-header) !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: map-get($spacers, 2) !important;
+    padding: map-get($spacers, 1) var(--twetq-page-gutter) !important;
+  }
+
+  .twetq-brand-row {
+    inline-size: auto !important;
+    min-inline-size: 0 !important;
+    margin-inline: 0 !important;
+  }
+}

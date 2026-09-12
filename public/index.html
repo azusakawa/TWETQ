@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TWETQ Podcast 投資脈絡｜節目摘要、產業與個股研究</title>
+    <link rel="icon" type="image/png" href="/assets/logo-a1-small.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#20313d" />
+    <meta name="apple-mobile-web-app-title" content="TWETQ" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="/tokens.css?v=20260726-mobile-style-v1" />
+    <link rel="stylesheet" href="/lofi.css?v=20260905-free-site-v1" />
+    <link id="bootstrapCoreStyles" rel="stylesheet" href="/vendor/bootstrap-twetq.min.css?v=20260819-bootstrap-production-v1" media="not all" />
+    <script src="/bootstrap-loader.js?v=20260905-free-site-v1"></script>
+  </head>
+  <body data-mode="home">
+    <div id="vueApp">
+      <span id="vueShellMount" hidden aria-hidden="true"></span>
+      <a class="skip-link" href="#resultSlot">跳到主要內容</a>
+    <main class="app">
+      <section class="shell">
+        <header class="app-header">
+          <div id="brandHomeLink" class="brand-lockup">
+            <a class="brand-home-core" href="/" data-mode-link="home" aria-label="回到首頁">
+            <div class="brand-mark"><img src="/assets/logo-a1-small.png" alt="" width="36" height="36" /></div>
+            <div class="brand-copy">
+              <h1>TWETQ <span>Podcast 投資脈絡</span></h1>
+              <p>從每一集出發，回到市場資料驗證</p>
+            </div>
+            </a>
+          </div>
+
+          <nav id="desktopNavBar" class="desktop-nav-bar" aria-label="快速分頁">
+            <a class="desktop-nav-item" href="/" data-mode-link="home">最新一集</a>
+            <a class="desktop-nav-item" href="/podcast" data-mode-link="podcast">所有集數</a>
+            <a class="desktop-nav-item" href="/market" data-mode-link="market" data-research-nav>市場總覽</a>
+            <a class="desktop-nav-item" href="/institutional" data-mode-link="institutional" data-research-nav>法人籌碼</a>
+            <a class="desktop-nav-item" href="/screen" data-mode-link="screen" data-research-nav>選股</a>
+          </nav>
+
+          <button id="navToggleButton" class="nav-toggle" type="button" aria-controls="siteNavDrawer" aria-expanded="false">
+            <span class="nav-toggle-mark" aria-hidden="true"></span>
+            <span>最新一集</span>
+          </button>
+
+          <div id="siteNavOverlay" class="site-nav-overlay" hidden></div>
+          <nav id="siteNavDrawer" class="site-nav-drawer" role="dialog" aria-modal="true" aria-labelledby="siteNavTitle" aria-hidden="true">
+            <div class="site-nav-head">
+              <div>
+                <span class="site-nav-kicker">TWETQ</span>
+                <strong id="siteNavTitle">功能選單</strong>
+              </div>
+              <button id="navCloseButton" class="site-nav-close" type="button" aria-label="關閉功能選單">×</button>
+            </div>
+            <div class="mode-switch nav-catalog" role="tablist" aria-label="主要功能分頁">
+              <a class="mode-button nav-group-main" href="/" data-mode-link="home" role="tab" aria-selected="false">最新一集</a>
+              <a id="podcastModeButton" class="mode-button nav-group-main" href="/podcast" data-mode-link="podcast" role="tab" aria-selected="false">所有集數</a>
+              <span class="site-nav-kicker">研究工具</span>
+              <a id="marketModeButton" class="mode-button nav-group-main" href="/market" data-mode-link="market" role="tab" aria-selected="false">市場總覽</a>
+              <a id="institutionalModeButton" class="mode-button nav-group-main" href="/institutional" data-mode-link="institutional" role="tab" aria-selected="false">法人籌碼</a>
+              <a id="screenModeButton" class="mode-button nav-group-main" href="/screen" data-mode-link="screen" role="tab" aria-selected="false">選股</a>
+            </div>
+          </nav>
+        </header>
+
+        <section class="search-panel command-bar command-bar-stock" aria-label="主要查詢列">
+          <div id="inputRow" class="input-row">
+            <div class="input-wrap">
+              <div id="predictionGhost" class="prediction-ghost" aria-hidden="true"></div>
+              <input
+                id="stockInput"
+                class="stock-input"
+                autocomplete="off"
+                placeholder="輸入股票代號或名稱，例如 2330、台積電、0056..."
+              />
+              <div id="suggestions" class="suggestions" hidden></div>
+            </div>
+            <button id="runButton" class="run-button" type="button">查詢股票</button>
+          </div>
+
+          <div id="warrantControls" class="warrant-controls" hidden>
+            <a id="warrantLookupButton" class="warrant-sub-button active" href="/warrant">權證查詢</a>
+            <a id="strategyModeButton" class="warrant-sub-button" href="/warrant/strategy">策略</a>
+            <label class="warrant-issuer-inline">
+              <span>發行公司</span>
+              <select id="warrantIssuer">
+                <option value="">全部發行公司</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="strategyControls" class="strategy-controls" hidden>
+            <div class="strategy-control-group">
+              <div class="strategy-control-title">到期日</div>
+              <label>
+                <span>最少天數</span>
+                <input id="strategyExpiryMin" type="number" min="1" step="1" value="110" inputmode="numeric" />
+              </label>
+              <label>
+                <span>最多天數</span>
+                <input id="strategyExpiryMax" type="number" min="1" step="1" value="150" inputmode="numeric" />
+              </label>
+            </div>
+
+            <div class="strategy-control-group">
+              <div class="strategy-control-title">認購履約價</div>
+              <label>
+                <span>最低倍率</span>
+                <input id="strategyCallMin" type="number" min="0.01" step="0.01" value="1.20" inputmode="decimal" />
+              </label>
+              <label>
+                <span>最高倍率</span>
+                <input id="strategyCallMax" type="number" min="0.01" step="0.01" value="1.50" inputmode="decimal" />
+              </label>
+            </div>
+
+            <div class="strategy-control-group">
+              <div class="strategy-control-title">認售履約價</div>
+              <label>
+                <span>最低倍率</span>
+                <input id="strategyPutMin" type="number" min="0.01" step="0.01" value="0.50" inputmode="decimal" />
+              </label>
+              <label>
+                <span>最高倍率</span>
+                <input id="strategyPutMax" type="number" min="0.01" step="0.01" value="0.80" inputmode="decimal" />
+              </label>
+            </div>
+
+            <div class="strategy-control-group strategy-issuer-group">
+              <div class="strategy-control-title">發行公司</div>
+              <label>
+                <span>篩選</span>
+                <select id="strategyIssuer">
+                  <option value="">全部發行公司</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div id="screenControls" class="screen-controls screen-controls-simple" hidden>
+            <div class="screen-control-group">
+              <div class="strategy-control-title">市場</div>
+              <label>
+                <span>範圍</span>
+                <select id="screenMarket">
+                  <option value="all">上市櫃合併</option>
+                  <option value="listed">只看上市</option>
+                  <option value="otc">只看上櫃</option>
+                </select>
+              </label>
+              <label>
+                <span>產業</span>
+                <select id="screenIndustry">
+                  <option value="">全部產業</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="screen-control-group screen-change-group">
+              <div class="strategy-control-title">價格基準值區間</div>
+              <label>
+                <span>區間</span>
+                <select id="screenBand">
+                  <option value="all">全部區間</option>
+                  <option value="below">低於基準 15% 以上</option>
+                  <option value="head">低於基準 0-15%</option>
+                  <option value="body">高於基準 0-15%</option>
+                  <option value="tail">高於基準 15-30%</option>
+                  <option value="bone">高於基準 30-100%</option>
+                  <option value="crazy">高於基準 100-900%</option>
+                  <option value="outlier">超出模型範圍</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="screen-control-group screen-keyword-group">
+              <div class="strategy-control-title">快速縮小</div>
+              <label>
+                <span>股票代號或名稱</span>
+                <input id="screenKeyword" type="search" autocomplete="off" placeholder="例如 2330 或台積電" />
+              </label>
+            </div>
+          </div>
+
+          <div id="futuresControls" class="screen-controls futures-controls" hidden>
+            <div class="screen-control-group">
+              <div class="strategy-control-title">期貨篩選</div>
+              <label>
+                <span>商品</span>
+                <select id="futuresContract">
+                  <option value="">全部商品</option>
+                  <option value="TX">台指期</option>
+                  <option value="MTX">小台指</option>
+                  <option value="TMF">微台指</option>
+                  <option value="TE">電子期</option>
+                  <option value="TF">金融期</option>
+                  <option value="GTF">櫃買期</option>
+                </select>
+              </label>
+              <label>
+                <span>盤別</span>
+                <select id="futuresSession">
+                  <option value="">全部盤別</option>
+                  <option value="一般">一般</option>
+                  <option value="盤後">盤後</option>
+                </select>
+              </label>
+            </div>
+            <div class="screen-control-group">
+              <div class="strategy-control-title">關鍵字</div>
+              <label>
+                <span>商品名稱或代碼</span>
+                <input id="futuresKeyword" type="search" autocomplete="off" placeholder="TX、台指期、202607..." />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section id="steps" class="steps" hidden></section>
+        <section id="liveSlot"></section>
+        <section id="errorSlot"></section>
+        <section id="resultSlot"></section>
+      </section>
+    </main>
+
+    <footer class="footer-note twetq-footer border-top">
+      <div class="footer-inner container-fluid twetq-footer-row d-flex flex-column flex-xl-row align-items-start align-items-xl-center justify-content-xl-between gap-2 gap-xl-4">
+        <span class="footer-brand flex-shrink-0"><strong>TWETQ</strong> Podcast 投資脈絡</span>
+        <nav class="footer-links d-flex flex-wrap gap-2 gap-md-3" aria-label="頁尾導覽">
+          <a href="/privacy" data-mode-link="privacy">隱私權政策</a>
+          <a href="/service" data-mode-link="service">服務條款</a>
+          <a href="/disclaimer" data-mode-link="disclaimer">免責聲明</a>
+        </nav>
+        <span class="footer-legal flex-shrink-0">&copy; 2026 TWETQ</span>
+      </div>
+      <small class="footer-disclaimer">本站資料來源為臺灣證券交易所 OpenAPI、櫃買中心 OpenAPI。本站僅供個人學術研究與 Podcast 脈絡整理之非營利加值使用，不保證資料之絕對正確性，亦不構成任何投資建議。</small>
+    </footer>
+
+    <button id="backToTopButton" class="back-to-top" type="button" aria-label="回到頁面頂部" hidden>
+      &uarr;
+    </button>
+    </div>
+
+    <script src="/vendor/vue.global.prod.js?v=3.5.40"></script>
+    <script src="/vue-shell.js?v=20260905-free-site-v1"></script>
+    <script src="https://unpkg.com/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="/app.js?v=20260905-free-site-v1"></script>
+  </body>
+</html>
