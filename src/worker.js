@@ -1780,14 +1780,11 @@ function renderSeoLayout(request, options = {}) {
   } = options;
   const shouldNoindex = noindex;
   const scriptNonce = randomId("seo");
-  const pageMode = pathname.startsWith("/podcast") ? "podcast" : pathname.startsWith("/stock") || pathname.startsWith("/industry") ? "market" : pathname.startsWith("/institutional") ? "institutional" : "home";
+  const pageMode = pathname.startsWith("/podcast") ? "podcast" : pathname.startsWith("/stock") || pathname.startsWith("/industry") ? "stock" : "home";
   const referencePageClass = pathname.startsWith("/stock/") ? "staging-stock-page" : pathname.startsWith("/industry/") ? "staging-industry-page" : "";
   const navItems = [
     ["home", "/", "最新一集"],
-    ["podcast", "/podcast", "所有集數"],
-    ["market", "/market", "市場總覽"],
-    ["institutional", "/institutional", "法人籌碼"],
-    ["screen", "/screen", "選股"]
+    ["podcast", "/podcast", "所有集數"]
   ];
   const modeLink = (mode, href, label, className, role = "") => `<a class="${className}${mode === pageMode ? " active" : ""}" href="${href}" data-mode-link="${mode}"${role ? ` role="${role}" aria-selected="${mode === pageMode}"` : ""}${mode === pageMode ? ' aria-current="page"' : ""}>${label}</a>`;
   const breadcrumbMarkup = breadcrumbs.length ? `<nav class="seo-nav" aria-label="Breadcrumb">${breadcrumbs.map((item) => `<a href="${escapeHtml(item.path)}">${escapeHtml(item.name)}</a>`).join("")}</nav>` : "";
@@ -4766,10 +4763,7 @@ async function serveHomeSpaPage(request, env) {
   const noindex = ["/podcast", "/support", "/service", "/privacy", "/refund", "/disclaimer"].includes(pathname);
   const pageTitles = {
     "/podcast": `\u6240\u6709\u96C6\u6578 | ${SITE_NAME}`,
-    "/about": `\u95DC\u65BC\u672C\u7AD9 | ${SITE_NAME}`,
-    "/market": `\u5E02\u5834\u7E3D\u89BD | ${SITE_NAME}`,
-    "/institutional": `\u6CD5\u4EBA\u7C4C\u78BC | ${SITE_NAME}`,
-    "/screen": `\u9078\u80A1\u7814\u7A76 | ${SITE_NAME}`
+    "/about": `\u95DC\u65BC\u672C\u7AD9 | ${SITE_NAME}`
   };
   const pageTitle = pageTitles[pathname] || `${SITE_NAME}\uFF5C\u7BC0\u76EE\u6458\u8981\u3001\u7522\u696D\u8207\u500B\u80A1\u7814\u7A76`;
   const meta = buildSeoHead(request, {
@@ -4791,10 +4785,7 @@ async function serveHomeSpaPage(request, env) {
   `;
   const crawlerSummaries = {
     "/": `<article data-crawler-summary><h2>從 Podcast 議題回到可查核的台股資料</h2><p>TWETQ 區分節目直接提及、系統延伸產業與官方市場資料，避免把相關股票誤寫成節目推薦。本站以公開逐字稿建立議題脈絡，再用 TWSE、TPEx、TAIFEX 與 MOPS 資料交叉查核。</p><p><a href="/podcast/680">閱讀 Azusa 的代表分析：EP680</a></p></article>`,
-    "/about": `<article data-crawler-summary id="author-azusa"><h2>作者、研究方法與 AI 協作</h2><p>作者使用筆名 Azusa，定位為獨立資料整理與研究寫作者，不代表 Podcast 製作方、主持人、交易所或投資顧問機構。</p><p>研究流程為：閱讀逐字稿、區分直接提及的個股與產業、核對官方資料、提出反面條件與限制，最後附上來源。AI 協助整理草稿與檢查一致性；Azusa 負責來源選擇、內容修改與發布決定。</p><p>所有內容與研究工具均免費公開；只有包含原創問答、來源與限制，且由 Azusa 確認發布的頁面才進入 sitemap，自動摘要頁維持 noindex。</p><p><a href="/podcast/680">查看代表作品 EP680</a>。</p></article>`,
-    "/market": `<article data-crawler-summary><h2>市場總覽怎麼使用</h2><p>本頁整理上市櫃市場指標、成交金額、類股淨買賣超、細產業與個股行情清單，資料主要來自 TWSE、TPEx 與 TAIFEX。資料只用於縮小研究範圍，不構成買賣建議。</p></article>`,
-    "/institutional": `<article data-crawler-summary><h2>法人籌碼的資料口徑</h2><p>本頁使用 TWSE、TPEx 與 TAIFEX 收盤後官方日資料，呈現三大法人個股排行，以及上市、上櫃外資與投信排行。</p></article>`,
-    "/screen": `<article data-crawler-summary><h2>選股研究的判讀方法</h2><p>篩選條件用市場、產業、價格與財務欄位建立觀察名單。使用者應再核對資料期間、缺漏、公司公告與風險；本站不以單一模型數值代替個股研究。</p></article>`
+    "/about": `<article data-crawler-summary id="author-azusa"><h2>作者、研究方法與 AI 協作</h2><p>作者使用筆名 Azusa，定位為獨立資料整理與研究寫作者，不代表 Podcast 製作方、主持人、交易所或投資顧問機構。</p><p>研究流程為：閱讀逐字稿、區分直接提及的個股與產業、核對官方資料、提出反面條件與限制，最後附上來源。AI 協助整理草稿與檢查一致性；Azusa 負責來源選擇、內容修改與發布決定。</p><p>所有內容與研究工具均免費公開；只有包含原創問答、來源與限制，且由 Azusa 確認發布的頁面才進入 sitemap，自動摘要頁維持 noindex。</p><p><a href="/podcast/680">查看代表作品 EP680</a>。</p></article>`
   };
   const crawlerSummary = crawlerSummaries[pathname] || "";
   const next = html
@@ -4885,7 +4876,7 @@ async function serveStockPage(request, env, code) {
     noindex: !benchmarkIsUsable,
     heroAside: referenceHeroAside,
     breadcrumbs: [
-      { name: "個股脈絡", path: "/market" },
+      { name: "最新一集", path: "/" },
       { name: `${code} ${displayName}`, path: `/stock/${encodeURIComponent(code)}` }
     ],
     jsonLd: [
@@ -4911,7 +4902,6 @@ async function serveStockPage(request, env, code) {
       },
       buildBreadcrumbJsonLd(request, [
         { name: "\u9996\u9801", path: "/" },
-        { name: "\u5E02\u5834\u7E3D\u89BD", path: "/market" },
         { name: `${companyName} ${code}`, path: `/stock/${encodeURIComponent(code)}` }
       ])
     ],
@@ -4975,7 +4965,6 @@ async function serveIndustryPage(request, env, categoryCode) {
     </div>`,
     breadcrumbs: [
       { name: "\u9996\u9801", path: "/" },
-      { name: "\u5E02\u5834\u7E3D\u89BD", path: "/market" },
       { name: category.name, path: industryPathFromCategory(category) }
     ],
     jsonLd: [
@@ -4988,7 +4977,6 @@ async function serveIndustryPage(request, env, categoryCode) {
       },
       buildBreadcrumbJsonLd(request, [
         { name: "\u9996\u9801", path: "/" },
-        { name: "\u5E02\u5834\u7E3D\u89BD", path: "/market" },
         { name: category.name, path: industryPathFromCategory(category) }
       ])
     ],
@@ -5163,7 +5151,6 @@ async function serveSitemapXml(request, env) {
   }, "pushUrl");
   pushUrl("/", (/* @__PURE__ */ new Date()).toISOString(), "1.0");
   pushUrl("/about", "", "0.7");
-  ["/market", "/screen"].forEach((path) => pushUrl(path, "", "0.6"));
   const podcastEditorial = await readPodcastEditorial(env);
   const podcastReports = await fetchPodcastReportsWithInFlight().catch(() => []);
   const publishedEpisodes = new Set();
@@ -5807,8 +5794,7 @@ var worker_default = {
       return Response.redirect(new URL("/about", request.url), 301);
     }
     if (isPageMethod && ["/stock", "/rank", "/ranking"].includes(cleanPath)) {
-      const target = new URL(cleanPath === "/stock" ? "/market" : "/institutional", request.url);
-      if (cleanPath !== "/stock") target.hash = "market-rankings";
+      const target = new URL("/", request.url);
       return Response.redirect(target, 301);
     }
     if (isPageMethod && ["/warrant", "/warrant/strategy", "/futures", "/portfolio", "/guide"].includes(cleanPath)) {
@@ -5817,7 +5803,7 @@ var worker_default = {
     if (isPageMethod && cleanPath.startsWith("/guide/")) {
       return Response.redirect(new URL("/", request.url), 302);
     }
-    if (isPageMethod && ["/screen", "/screener", "/podcast", "/market", "/institutional", "/about", "/service", "/privacy", "/refund", "/disclaimer"].includes(cleanPath)) {
+    if (isPageMethod && ["/podcast", "/about", "/service", "/privacy", "/refund", "/disclaimer"].includes(cleanPath)) {
       return await serveHomeSpaPage(request, env);
     }
     if (isPageMethod && cleanPath.startsWith("/stock/")) {
