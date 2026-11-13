@@ -1,0 +1,55 @@
+
+/* i18n 語言切換樣式 */
+.locale-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.locale-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.locale-button {
+  padding: 4px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.locale-button:hover {
+  background: #e8e8e8;
+}
+
+.locale-button.active {
+  background: #20313d;
+  color: white;
+  border-color: #20313d;
+}
+
+.locale-button[aria-pressed="true"] {
+  background: #20313d;
+  color: white;
+}
+
+/* 響應式設計 */
+@media (max-width: 600px) {
+  .locale-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .locale-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

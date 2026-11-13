@@ -1,0 +1,11 @@
+name = "twetq"
+main = "src/worker-github.js"
+assets = { directory = "public", binding = "ASSETS" }
+
+compatibility_date = "2025-01-01"
+compatibility_flags = []
+
+vars = {
+  ENVIRONMENT = "production",
+  PODCAST_DOMAIN = "twetq.com"
+}
