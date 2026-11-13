@@ -17,18 +17,11 @@
         "bot:screener": "node scripts/bots/screener-bot.mjs",
         "bot:kline": "node scripts/bots/kline-bot.mjs",
         "bot:refresh": "node scripts/bots/data-refresh-bot.mjs",
-        "bot:verify": "node scripts/bots/verification-bot.mjs",
-        "build:ts": "tsc -p tsconfig.json",
-        "build:worker": "tsc -p tsconfig.json --outDir dist/worker",
-        "build:app": "tsc -p tsconfig.json --outDir dist/app",
-        "typecheck": "tsc --noEmit",
-        "build": "npm run build:ts"
+        "bot:verify": "node scripts/bots/verification-bot.mjs"
     },
     "devDependencies": {
         "sass": "^1.102.0",
-        "wrangler": "^4.156.0",
-        "@types/node": "^22.13.1",
-        "typescript": "^5.7.3"
+        "wrangler": "^4.156.0"
     },
     "dependencies": {
         "bootstrap": "5.3.8",
