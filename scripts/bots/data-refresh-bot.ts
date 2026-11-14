@@ -125,14 +125,15 @@ Environment:
 
 // 主函数
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+  let args = process.argv.slice(2);
   if (!args.length || args.includes('help')) {
     return cmdHelp();
   }
   
   const dryRun = args.includes('--dry');
   if (dryRun) {
-    args = args.filter(a => a !== '--dry');
+    const filtered = args.filter(a => a !== '--dry');
+    args = filtered;
   }
   
   const cmd = args[0] || 'all';

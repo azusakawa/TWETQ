@@ -3,7 +3,7 @@
  * 本地开发服务器，提供静态资产和 API 代理
  */
 
-import { createServer } from "node:http";
+import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { readFileSync, statSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
@@ -26,6 +26,7 @@ interface DatabaseBinding {
 
 interface AssetsEnv {
   fetch: (request: Request) => Promise<Response>;
+  ASSETS: { fetch: (request: Request) => Promise<Response> };
 }
 
 interface DBEnv {
@@ -78,16 +79,16 @@ function createDatabaseBinding(database: DatabaseSync): DatabaseBinding {
           return this;
         },
         first(): Record<string, unknown> | null {
-          return statement.get(...normalizeBindings(values)) || null;
+          return (statement.get as any)(...normalizeBindings(values)) || null;
         },
         all(): { results: Record<string, unknown>[], success: true } {
           return {
-            results: statement.all(...normalizeBindings(values)),
+            results: (statement.all as any)(...normalizeBindings(values)),
             success: true,
           };
         },
         run(): { success: true; meta: { changes: number; last_row_id: number } } {
-          const result = statement.run(...normalizeBindings(values));
+          const result = (statement.run as any)(...normalizeBindings(values));
           return {
             success: true,
             meta: {
@@ -152,7 +153,7 @@ function readBody(request: NodeJS.ReadableStream): Promise<Buffer> {
       size += chunk.length;
       if (size > maxBodyBytes) {
         rejectBody(new Error("request body too large"));
-        request.destroy();
+        (request as any).destroy();
         return;
       }
       chunks.push(chunk);
@@ -163,22 +164,22 @@ function readBody(request: NodeJS.ReadableStream): Promise<Buffer> {
 }
 
 // 转换为 Request 对象
-async function toRequest(request: NodeJS.ServerRequest): Promise<Request> {
+async function toRequest(request: IncomingMessage): Promise<Request> {
   const url = new URL(request.url || "/", `http://${request.headers.host || `${host}:${port}`}`);
   const headers = new Headers();
   for (const [name, value] of Object.entries(request.headers)) {
     if (value !== undefined) headers.set(name, Array.isArray(value) ? value.join(", ") : value as string);
   }
-  const init: RequestInit = { method: request.method || "GET", headers };
+  const init: RequestInit & { duplex?: string } = { method: request.method || "GET", headers };
   if (init.method !== "GET" && init.method !== "HEAD") {
-    init.body = await readBody(request);
-    init.duplex = "half" as any;
+    init.body = await readBody(request) as BodyInit;
+    init.duplex = "half";
   }
   return new Request(url, init);
 }
 
 // 写入响应
-async function writeResponse(nodeResponse: NodeJS.ServerResponse, response: Response): Promise<void> {
+async function writeResponse(nodeResponse: ServerResponse, response: Response): Promise<void> {
   const headers: Record<string, string | string[]> = {};
   response.headers.forEach((value: string, name: string) => {
     headers[name] = value;
@@ -200,12 +201,13 @@ database.exec("PRAGMA journal_mode=WAL");
 
 // 创建环境变量
 const env: FullEnv = {
+  fetch: fetchAsset,
   ASSETS: { fetch: fetchAsset },
   DB: createDatabaseBinding(database),
 };
 
 // 创建服务器
-const server = createServer(async (request: NodeJS.ServerRequest, nodeResponse: NodeJS.ServerResponse) => {
+const server = createServer(async (request: IncomingMessage, nodeResponse: ServerResponse) => {
   try {
     const response = await app.fetch(await toRequest(request), env);
     await writeResponse(nodeResponse, response);

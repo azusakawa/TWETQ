@@ -12,6 +12,8 @@
  *   node scripts/bots/verification-bot.mjs help
  */
 
+import { join } from 'path';
+
 // 类型定义
 interface CheckResult {
   name: string;
@@ -130,14 +132,15 @@ Environment:
 
 // 主函数
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+  let args = process.argv.slice(2);
   if (!args.length || args.includes('help')) {
     return cmdHelp();
   }
   
   if (args.includes('--fail-fast')) {
     failFast = true;
-    args = args.filter(a => a !== '--fail-fast');
+    const filtered = args.filter(a => a !== '--fail-fast');
+    args = filtered;
   }
   
   const cmd = args[0] || 'all';

@@ -20,7 +20,7 @@ interface EndpointResult {
 }
 
 // 端点配置
-const endpoints: EndpointConfig[] = [
+const endpoints: [string, number, number?][] = [
   ["tpex_mainboard_quotes", 500, 14],
   ["tpex_mainboard_peratio_analysis", 400, 14],
   ["tpex_mainboard_margin_balance", 400, 14],
@@ -63,9 +63,10 @@ function formatSlashDate(date: Date): string {
 }
 
 // 获取端点数据
-async function fetchEndpointData(endpoint: EndpointConfig): Promise<EndpointResult> {
-  const date = getCurrentDate(endpoint.dateOffset || 0);
-  const slashDate = formatSlashDate(new Date(Date.now() - (endpoint.dateOffset || 0) * 86400000));
+async function fetchEndpointData(endpoint: [string, number, number?]): Promise<EndpointResult> {
+  const [name, limit, dateOffset = 0] = endpoint;
+  const date = getCurrentDate(dateOffset);
+  const slashDate = formatSlashDate(new Date(Date.now() - (dateOffset || 0) * 86400000));
   
   // 这里需要根据实际 API 实现数据获取逻辑
   // 由于原始代码依赖外部 API，这里仅提供类型框架
@@ -86,13 +87,14 @@ async function main(): Promise<void> {
   try {
     // 遍历所有端点
     for (const endpoint of endpoints) {
-      console.log(`Fetching ${endpoint.name}...`);
-      const result = await fetchEndpointData(endpoint);
+      const [name, limit, dateOffset] = endpoint;
+      console.log(`Fetching ${name}...`);
+      const result = await fetchEndpointData([name, limit, dateOffset] as [string, number, number?]);
       
       // 保存数据
-      const outputPath = join(tempDir, `${endpoint.name}.json`);
+      const outputPath = join(tempDir, `${name}.json`);
       await writeFile(outputPath, JSON.stringify(result.data, null, 2));
-      console.log(`Saved ${endpoint.name} to ${outputPath}`);
+      console.log(`Saved ${name} to ${outputPath}`);
     }
     
     // 移动数据到最终位置
@@ -100,8 +102,9 @@ async function main(): Promise<void> {
     await mkdir(dataDir, { recursive: true });
     
     for (const endpoint of endpoints) {
-      const sourcePath = join(tempDir, `${endpoint.name}.json`);
-      const destPath = join(dataDir, `${endpoint.name}.json`);
+      const [name] = endpoint;
+      const sourcePath = join(tempDir, `${name}.json`);
+      const destPath = join(dataDir, `${name}.json`);
       await rename(sourcePath, destPath);
     }
     

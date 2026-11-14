@@ -72,7 +72,9 @@ async function cmdLatest(): Promise<void> {
     console.log('');
     if (ep.summary || ep.content) {
       const summary = ep.summary || ep.content;
-      console.log(summary.substring(0, 500) + (String(summary).length > 500 ? '...' : ''));
+      if (summary) {
+        console.log(String(summary).substring(0, 500) + (String(summary).length > 500 ? '...' : ''));
+      }
     }
   } catch (err: unknown) {
     console.error(`Error: ${(err as Error).message}`);

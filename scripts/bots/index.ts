@@ -95,7 +95,7 @@ async function main(): Promise<void> {
   
   // 动态导入并执行
   try {
-    await import(`file://${botPath}`, { with: { type: 'module' } });
+    await import(`file://${botPath}`);
   } catch (err: unknown) {
     // 如果动态导入失败（旧版 Node），使用普通 import()
     try {
