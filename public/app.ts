@@ -2558,15 +2558,12 @@ let portfolioTurnstileWidgetId = "";
 
 const MODE_ROUTE_MAP = {
   home: "/",
-  screen: "/screen",
   podcast: "/podcast",
   help: "/about",
   service: "/service",
   privacy: "/privacy",
   refund: "/refund",
   disclaimer: "/disclaimer",
-  market: "/market",
-  institutional: "/institutional",
 };
 const ROUTE_MODE_MAP = new Map(
   Object.entries(MODE_ROUTE_MAP).map(([mode, path]) => [path, mode]),
@@ -9678,9 +9675,6 @@ function renderHelpText(value) {
   const links = [
     ["??唬???, "/"],
     ["?????, "/podcast"],
-    ["撣蝮質汗", "/market"],
-    ["瘜犖蝐Ⅳ", "/institutional"],
-    ["?貉", "/screen"],
   ];
   let output = htmlEscape(value);
   links.forEach(([label, href]) => {
@@ -9723,9 +9717,6 @@ function renderHomePage(latestData = null, episodes = []) {
       ? [{ episode: latestEpisode, title: latestTitle, date: latestDate, excerpt: latestExcerpt }]
       : [];
   const tools = [
-    ["撣蝮質汗", "/market", "隞?TWSE ??TPEx 摰銵??渡?撣?????∠?蝣潸??皜??],
-    ["瘜犖蝐Ⅳ", "/institutional", "隞交?文?摰?亥????鈭箸????葉?亦?銝之瘜犖??鞈??縑????],
-    ["?貉", "/screen", "靘?澆皞潸??Ｘ平蝮桀??弦蝭?"],
   ];
 
   resultSlot.innerHTML = `
