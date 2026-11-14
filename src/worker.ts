@@ -91,8 +91,7 @@ var AUTH_RATE_LIMITS = {
   register: { maxFailures: 5, blockMs: 30 * 60 * 1e3 }
 };
 var securityTablesPromise = null;
-function json(payload, status = 200, extraHeaders = {}) {
-  return new Response(JSON.stringify(payload), {
+function json(payload: object, status: int = 200, extraHeaders: object = {}) {  return new Response(JSON.stringify(payload), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
@@ -102,8 +101,7 @@ function json(payload, status = 200, extraHeaders = {}) {
   });
 }
 __name(json, "json");
-function jsonNoCors(payload, status = 200, extraHeaders = {}) {
-  return new Response(JSON.stringify(payload), {
+function jsonNoCors(payload: object, status: int = 200, extraHeaders: object = {}) {  return new Response(JSON.stringify(payload), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
@@ -113,35 +111,29 @@ function jsonNoCors(payload, status = 200, extraHeaders = {}) {
   });
 }
 __name(jsonNoCors, "jsonNoCors");
-function getCachedMopsFinancials(cacheKey) {
-  const cached = mopsFinancialCache.get(cacheKey);
+function getCachedMopsFinancials(cacheKey: str) {  const cached = mopsFinancialCache.get(cacheKey);
   if (!cached) return null;
   if (Date.now() - cached.cachedAt > MOPS_FINANCIAL_CACHE_TTL_MS) return null;
   return cached.payload;
 }
 __name(getCachedMopsFinancials, "getCachedMopsFinancials");
-function putCachedMopsFinancials(cacheKey, payload) {
-  if (!payload?.ok) return;
+function putCachedMopsFinancials(cacheKey: str, payload: object) {  if (!payload?.ok) return;
   mopsFinancialCache.set(cacheKey, { cachedAt: Date.now(), payload });
 }
 __name(putCachedMopsFinancials, "putCachedMopsFinancials");
-function isTaifexProxyTarget(parsed) {
-  return parsed.hostname === "mis.taifex.com.tw";
+function isTaifexProxyTarget(parsed: object) {  return parsed.hostname === "mis.taifex.com.tw";
 }
 __name(isTaifexProxyTarget, "isTaifexProxyTarget");
-function getTaifexProxyCache(cacheKey) {
-  const cached = taifexProxyCache.get(cacheKey);
+function getTaifexProxyCache(cacheKey: str) {  const cached = taifexProxyCache.get(cacheKey);
   if (!cached) return null;
   if (Date.now() - cached.cachedAt > TAIFEX_PROXY_CACHE_TTL_MS) return null;
   return cached;
 }
 __name(getTaifexProxyCache, "getTaifexProxyCache");
-function putTaifexProxyCache(cacheKey, body, contentType, status = 200) {
-  taifexProxyCache.set(cacheKey, { cachedAt: Date.now(), body, contentType, status });
+function putTaifexProxyCache(cacheKey: str, body: str, contentType: str, status: int = 200) {  taifexProxyCache.set(cacheKey, { cachedAt: Date.now(), body, contentType, status });
 }
 __name(putTaifexProxyCache, "putTaifexProxyCache");
-function getTaifexProxyCircuit(cacheKey) {
-  const entry = taifexProxyCircuit.get(cacheKey);
+function getTaifexProxyCircuit(cacheKey: str) {  const entry = taifexProxyCircuit.get(cacheKey);
   if (!entry) return null;
   if (entry.openUntil && entry.openUntil > Date.now()) return entry;
   if (entry.openUntil && entry.openUntil <= Date.now()) {
@@ -151,8 +143,7 @@ function getTaifexProxyCircuit(cacheKey) {
   return entry;
 }
 __name(getTaifexProxyCircuit, "getTaifexProxyCircuit");
-function markTaifexProxyFailure(cacheKey) {
-  const current = taifexProxyCircuit.get(cacheKey) || { failures: 0, openUntil: 0 };
+function markTaifexProxyFailure(cacheKey: str) {  const current = taifexProxyCircuit.get(cacheKey) || { failures: 0, openUntil: 0 };
   const failures = current.failures + 1;
   taifexProxyCircuit.set(cacheKey, {
     failures,
@@ -160,12 +151,10 @@ function markTaifexProxyFailure(cacheKey) {
   });
 }
 __name(markTaifexProxyFailure, "markTaifexProxyFailure");
-function resetTaifexProxyCircuit(cacheKey) {
-  taifexProxyCircuit.delete(cacheKey);
+function resetTaifexProxyCircuit(cacheKey: str) {  taifexProxyCircuit.delete(cacheKey);
 }
 __name(resetTaifexProxyCircuit, "resetTaifexProxyCircuit");
-function taifexProxyFallbackResponse(request, parsed, cacheKey, reason, status = 200) {
-  const cached = getTaifexProxyCache(cacheKey);
+function taifexProxyFallbackResponse(request: Request, parsed: object, cacheKey: str, reason: str, status: int = 200) {  const cached = getTaifexProxyCache(cacheKey);
   if (cached) {
     return new Response(cached.body, {
       status: cached.status || 200,
@@ -189,33 +178,28 @@ function taifexProxyFallbackResponse(request, parsed, cacheKey, reason, status =
   }, status);
 }
 __name(taifexProxyFallbackResponse, "taifexProxyFallbackResponse");
-function randomId(prefix = "") {
-  const bytes = new Uint8Array(16);
+function randomId(prefix: str = "") {  const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return `${prefix}${Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
 }
 __name(randomId, "randomId");
-function bytesToBase64(bytes) {
-  let binary = "";
+function bytesToBase64(bytes: object) {  let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
   return btoa(binary);
 }
 __name(bytesToBase64, "bytesToBase64");
-function base64ToBytes(value) {
-  const binary = atob(value);
+function base64ToBytes(value: str) {  const binary = atob(value);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return bytes;
 }
 __name(base64ToBytes, "base64ToBytes");
-async function sha256Base64(value) {
-  const bytes = new TextEncoder().encode(value);
+async function sha256Base64(value: str) {  const bytes = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest("SHA-256", bytes);
   return bytesToBase64(new Uint8Array(hash));
 }
 __name(sha256Base64, "sha256Base64");
-async function hashPassword(password, saltBase64) {
-  const keyMaterial = await crypto.subtle.importKey(
+async function hashPassword(password: str, saltBase64: str) {  const keyMaterial = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     "PBKDF2",
@@ -241,30 +225,25 @@ function createSalt() {
   return bytesToBase64(bytes);
 }
 __name(createSalt, "createSalt");
-function getCookie(request, name) {
-  const cookie = request.headers.get("cookie") || "";
+function getCookie(request: Request, name: str) {  const cookie = request.headers.get("cookie") || "";
   return cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${name}=`))?.slice(name.length + 1) || "";
 }
 __name(getCookie, "getCookie");
-function sessionCookie(token, maxAge = SESSION_MAX_AGE_SECONDS) {
-  const secure = maxAge > 0 ? "Secure; " : "";
+function sessionCookie(token: str, maxAge: int = SESSION_MAX_AGE_SECONDS) {  const secure = maxAge > 0 ? "Secure; " : "";
   return `${SESSION_COOKIE}=${token}; HttpOnly; ${secure}SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }
 __name(sessionCookie, "sessionCookie");
-async function readJsonBody(request) {
-  try {
+async function readJsonBody(request: Request) {  try {
     return await request.json();
   } catch (_) {
     return {};
   }
 }
 __name(readJsonBody, "readJsonBody");
-function normalizeUsername(value) {
-  return String(value || "").trim().toLowerCase();
+function normalizeUsername(value: str) {  return String(value || "").trim().toLowerCase();
 }
 __name(normalizeUsername, "normalizeUsername");
-function validateCredentials(username, password) {
-  if (!/^[a-z0-9._@-]{3,64}$/.test(username)) {
+function validateCredentials(username: str, password: str) {  if (!/^[a-z0-9._@-]{3,64}$/.test(username)) {
     return "Username must be 3-64 characters and may only contain letters, numbers, dot, underscore, @, and dash";
   }
   if (String(password || "").length < 8 || String(password || "").length > 128) {
@@ -303,8 +282,7 @@ async function createSession(env, userId) {
   return token;
 }
 __name(createSession, "createSession");
-async function handleRegister(request, env) {
-  const trustedError = requireTrustedStateChange(request);
+async function handleRegister(request: Request, env: object): Response {  const trustedError = requireTrustedStateChange(request);
   if (trustedError) return trustedError;
   try {
     if (!env.DB) return jsonNoCors({ ok: false, error: "Local database is not configured" }, 500);
@@ -335,8 +313,7 @@ async function handleRegister(request, env) {
   }
 }
 __name(handleRegister, "handleRegister");
-async function handleLogin(request, env) {
-  const trustedError = requireTrustedStateChange(request);
+async function handleLogin(request: Request, env: object): Response {  const trustedError = requireTrustedStateChange(request);
   if (trustedError) return trustedError;
   try {
     if (!env.DB) return jsonNoCors({ ok: false, error: "Local database is not configured" }, 500);
@@ -366,8 +343,7 @@ async function handleLogin(request, env) {
   }
 }
 __name(handleLogin, "handleLogin");
-async function handleLogout(request, env) {
-  const trustedError = requireTrustedStateChange(request);
+async function handleLogout(request: Request, env: object): Response {  const trustedError = requireTrustedStateChange(request);
   if (trustedError) return trustedError;
   if (env.DB) {
     const token = getCookie(request, SESSION_COOKIE);
@@ -379,8 +355,7 @@ async function handleLogout(request, env) {
   return jsonNoCors({ ok: true }, 200, { "set-cookie": sessionCookie("", 0) });
 }
 __name(handleLogout, "handleLogout");
-async function handleMe(request, env) {
-  const user = await getSessionUser(request, env);
+async function handleMe(request: Request, env: object): Response {  const user = await getSessionUser(request, env);
   return jsonNoCors({ ok: true, user });
 }
 __name(handleMe, "handleMe");
@@ -396,8 +371,7 @@ function normalizePortfolioData(value) {
   })).filter((item) => item.symbol && Number.isFinite(item.quantity) && item.quantity > 0 && Number.isFinite(item.cost) && item.cost >= 0);
 }
 __name(normalizePortfolioData, "normalizePortfolioData");
-async function handleGetPortfolio(request, env) {
-  const user = await getSessionUser(request, env);
+async function handleGetPortfolio(request: Request, env: object): Response {  const user = await getSessionUser(request, env);
   if (!user) return jsonNoCors({ ok: false, error: "Please sign in first" }, 401);
   const row = await env.DB.prepare("SELECT data, updated_at FROM portfolios WHERE user_id = ?").bind(user.id).first();
   let items = [];
@@ -409,8 +383,7 @@ async function handleGetPortfolio(request, env) {
   return jsonNoCors({ ok: true, user, items: normalizePortfolioData(items), updatedAt: row?.updated_at || "" });
 }
 __name(handleGetPortfolio, "handleGetPortfolio");
-async function handleSavePortfolio(request, env) {
-  const trustedError = requireTrustedStateChange(request);
+async function handleSavePortfolio(request: Request, env: object): Response {  const trustedError = requireTrustedStateChange(request);
   if (trustedError) return trustedError;
   const user = await getSessionUser(request, env);
   if (!user) return jsonNoCors({ ok: false, error: "Please sign in first" }, 401);
@@ -425,8 +398,7 @@ async function handleSavePortfolio(request, env) {
   return jsonNoCors({ ok: true, user, items, updatedAt: now });
 }
 __name(handleSavePortfolio, "handleSavePortfolio");
-function getProxyHeaders(parsed) {
-  const isTwseMis = parsed.hostname === "mis.twse.com.tw";
+function getProxyHeaders(parsed: object) {  const isTwseMis = parsed.hostname === "mis.twse.com.tw";
   const isTaifexMis = parsed.hostname === "mis.taifex.com.tw";
   const isTpexRealtime = parsed.hostname === "info.tpex.org.tw";
   const headers = {
@@ -441,8 +413,7 @@ function getProxyHeaders(parsed) {
   return headers;
 }
 __name(getProxyHeaders, "getProxyHeaders");
-function normalizeContentType(response, parsed) {
-  const source = response.headers.get("content-type") || "";
+function normalizeContentType(response: object, parsed: object) {  const source = response.headers.get("content-type") || "";
   if (parsed.pathname.startsWith("/openapi/") || source.includes("json")) {
     return "application/json; charset=utf-8";
   }
@@ -516,20 +487,17 @@ async function proxyFetch(request) {
   }
 }
 __name(proxyFetch, "proxyFetch");
-function normalizeRealtimeChannel(value) {
-  const text = String(value || "").trim();
+function normalizeRealtimeChannel(value: object) {  const text = String(value || "").trim();
   const match = text.match(/^(tse|otc)_([A-Za-z0-9]{2,12})\.tw$/i);
   if (!match) return "";
   return `${match[1].toLowerCase()}_${match[2].toUpperCase()}.tw`;
 }
 __name(normalizeRealtimeChannel, "normalizeRealtimeChannel");
-function parseRealtimeChannels(requestUrl) {
-  const raw = requestUrl.searchParams.get("channels") || requestUrl.searchParams.get("ex_ch") || "";
+function parseRealtimeChannels(requestUrl: object) {  const raw = requestUrl.searchParams.get("channels") || requestUrl.searchParams.get("ex_ch") || "";
   return [...new Set(raw.split("|").map(normalizeRealtimeChannel).filter(Boolean))].slice(0, REALTIME_QUOTE_MAX_CHANNELS);
 }
 __name(parseRealtimeChannels, "parseRealtimeChannels");
-function cachedRealtimeRows(channels, now = Date.now()) {
-  return channels.map((channel) => {
+function cachedRealtimeRows(channels: object, now: object = Date.now()) {  return channels.map((channel) => {
     const cached = realtimeQuoteCache.get(channel);
     if (!cached || now - cached.cachedAt > REALTIME_QUOTE_STALE_MS) return null;
     return cached.row;
@@ -583,8 +551,7 @@ async function fetchRealtimeRowsFromTwseResilient(channels) {
   }
 }
 __name(fetchRealtimeRowsFromTwseResilient, "fetchRealtimeRowsFromTwseResilient");
-function pickRealtimeRowChannel(row, channels) {
-  const code = String(row?.c || "").trim().toUpperCase();
+function pickRealtimeRowChannel(row: object, channels: object) {  const code = String(row?.c || "").trim().toUpperCase();
   if (!code) return "";
   const rowEx = String(row?.ex || "").toLowerCase();
   const rowPrefix = rowEx.includes("otc") || rowEx === "o" ? "otc" : rowEx.includes("tse") || rowEx === "t" ? "tse" : "";
@@ -594,8 +561,7 @@ function pickRealtimeRowChannel(row, channels) {
   return matches.length === 1 ? matches[0] : exact || matches[0] || "";
 }
 __name(pickRealtimeRowChannel, "pickRealtimeRowChannel");
-function storeRealtimeRows(channels, rows) {
-  const received = new Set();
+function storeRealtimeRows(channels: object, rows: object) {  const received = new Set();
   for (const row of rows) {
     const channel = pickRealtimeRowChannel(row, channels);
     if (!channel) continue;
@@ -605,8 +571,7 @@ function storeRealtimeRows(channels, rows) {
   return received;
 }
 __name(storeRealtimeRows, "storeRealtimeRows");
-function chunkRealtimeChannels(channels) {
-  const chunks = [];
+function chunkRealtimeChannels(channels: object) {  const chunks = [];
   for (let i = 0; i < channels.length; i += REALTIME_QUOTE_UPSTREAM_CHUNK_SIZE) {
     chunks.push(channels.slice(i, i + REALTIME_QUOTE_UPSTREAM_CHUNK_SIZE));
   }
@@ -653,8 +618,7 @@ async function refreshRealtimeChannels(channels) {
   };
 }
 __name(refreshRealtimeChannels, "refreshRealtimeChannels");
-async function handleRealtimeQuotes(request) {
-  const requestUrl = new URL(request.url);
+async function handleRealtimeQuotes(request: Request): Response {  const requestUrl = new URL(request.url);
   const channels = parseRealtimeChannels(requestUrl);
   if (!channels.length) return json({ ok: false, error: "Missing or invalid channels" }, 400);
   const now = Date.now();
@@ -764,13 +728,11 @@ function getCachedMarketIndexes() {
   return marketIndexCache.payload;
 }
 __name(getCachedMarketIndexes, "getCachedMarketIndexes");
-function setCachedMarketIndexes(payload) {
-  marketIndexCache = { cachedAt: Date.now(), payload };
+function setCachedMarketIndexes(payload: object) {  marketIndexCache = { cachedAt: Date.now(), payload };
   return payload;
 }
 __name(setCachedMarketIndexes, "setCachedMarketIndexes");
-function normalizeTaifexDailyFutureIndex(row, title) {
-  if (!row) return null;
+function normalizeTaifexDailyFutureIndex(row: object, title: str) {  if (!row) return null;
   const value = parseNum(row.Last);
   const change = parseNum(row.Change);
   const percent = parseNum(String(row["%"] || "").replace("%", ""));
@@ -899,8 +861,7 @@ async function fetchMarketIndexesPayload() {
   };
 }
 __name(fetchMarketIndexesPayload, "fetchMarketIndexesPayload");
-async function handleMarketIndexes(request) {
-  try {
+async function handleMarketIndexes(request: Request): Response {  try {
     const force = new URL(request.url).searchParams.get("force") === "1";
     const cached = !force ? getCachedMarketIndexes() : null;
     if (cached) return json(cached);
@@ -920,8 +881,7 @@ async function handleMarketIndexes(request) {
   }
 }
 __name(handleMarketIndexes, "handleMarketIndexes");
-function parseCsvLine(line) {
-  const cells = [];
+function parseCsvLine(line: str) {  const cells = [];
   let cell = "";
   let quoted = false;
   for (let i = 0; i < line.length; i += 1) {
@@ -952,8 +912,7 @@ function parseCsvLine(line) {
   return cells;
 }
 __name(parseCsvLine, "parseCsvLine");
-function parseCsvRecords(text) {
-  const lines = String(text || "").replace(/\r/g, "").split("\n").map((line) => line.trim()).filter(Boolean);
+function parseCsvRecords(text: str) {  const lines = String(text || "").replace(/\r/g, "").split("\n").map((line) => line.trim()).filter(Boolean);
   if (!lines.length) return [];
   const headers = parseCsvLine(lines.shift()).map((header) => header.replace(/^\uFEFF/, "").trim());
   return lines.map((line) => {
@@ -966,22 +925,18 @@ function parseCsvRecords(text) {
   });
 }
 __name(parseCsvRecords, "parseCsvRecords");
-function escapeHtml(value) {
-  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+function escapeHtml(value: str) {  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 __name(escapeHtml, "escapeHtml");
-function stripHtmlToText(value) {
-  return String(value ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+function stripHtmlToText(value: str) {  return String(value ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 __name(stripHtmlToText, "stripHtmlToText");
-function truncateText(value, length = 160) {
-  const text = stripHtmlToText(value);
+function truncateText(value: str, length: int = 160) {  const text = stripHtmlToText(value);
   if (text.length <= length) return text;
   return `${text.slice(0, Math.max(0, length - 1)).trim()}\u2026`;
 }
 __name(truncateText, "truncateText");
-function formatSeoDateTime(value) {
-  const date = new Date(value || "");
+function formatSeoDateTime(value: str) {  const date = new Date(value || "");
   if (!Number.isFinite(date.getTime())) return "—";
   return new Intl.DateTimeFormat("zh-TW", {
     timeZone: "Asia/Taipei",
@@ -994,12 +949,10 @@ function formatSeoDateTime(value) {
   }).format(date);
 }
 __name(formatSeoDateTime, "formatSeoDateTime");
-function serializeJsonForScript(value) {
-  return JSON.stringify(value).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+function serializeJsonForScript(value: object) {  return JSON.stringify(value).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
 }
 __name(serializeJsonForScript, "serializeJsonForScript");
-function formatSeoNumber(value, digits = 2) {
-  const num = Number(value);
+function formatSeoNumber(value: object, digits: int = 2) {  const num = Number(value);
   if (!Number.isFinite(num)) return "\u2014";
   return num.toLocaleString("zh-TW", {
     minimumFractionDigits: digits,
@@ -1007,41 +960,34 @@ function formatSeoNumber(value, digits = 2) {
   });
 }
 __name(formatSeoNumber, "formatSeoNumber");
-function formatSeoPercent(value, digits = 2) {
-  const num = Number(value);
+function formatSeoPercent(value: object, digits: int = 2) {  const num = Number(value);
   if (!Number.isFinite(num)) return "\u2014";
   return `${num >= 0 ? "+" : ""}${num.toFixed(digits)}%`;
 }
 __name(formatSeoPercent, "formatSeoPercent");
-function formatSeoPrice(value) {
-  const num = Number(value);
+function formatSeoPrice(value: object) {  const num = Number(value);
   if (!Number.isFinite(num)) return "\u2014";
   return `NT$${formatSeoNumber(num, 2)}`;
 }
 __name(formatSeoPrice, "formatSeoPrice");
-function seoChangeTone(value) {
-  const num = Number(value);
+function seoChangeTone(value: str) {  const num = Number(value);
   if (!Number.isFinite(num) || num === 0) return "flat";
   return num > 0 ? "up" : "down";
 }
 __name(seoChangeTone, "seoChangeTone");
-function getCanonicalOrigin(request) {
-  return getRequestOrigin(request) || "http://127.0.0.1:8787";
+function getCanonicalOrigin(request: Request) {  return getRequestOrigin(request) || "http://127.0.0.1:8787";
 }
 __name(getCanonicalOrigin, "getCanonicalOrigin");
-function buildAbsoluteUrl(request, pathname = "/") {
-  return new URL(pathname, getCanonicalOrigin(request)).toString();
+function buildAbsoluteUrl(request: Request, pathname: str = "/") {  return new URL(pathname, getCanonicalOrigin(request)).toString();
 }
 __name(buildAbsoluteUrl, "buildAbsoluteUrl");
-function ogImageUrl(request, title, subtitle = "") {
-  const url = new URL(OG_IMAGE_PATH, getCanonicalOrigin(request));
+function ogImageUrl(request: Request, title: str, subtitle: str = "") {  const url = new URL(OG_IMAGE_PATH, getCanonicalOrigin(request));
   url.searchParams.set("title", title);
   if (subtitle) url.searchParams.set("subtitle", subtitle);
   return url.toString();
 }
 __name(ogImageUrl, "ogImageUrl");
-function buildSeoHead(request, options = {}) {
-  const {
+function buildSeoHead(request: Request, options: object = {}) {  const {
     title,
     description = SITE_DESCRIPTION,
     pathname = "/",
@@ -1081,8 +1027,7 @@ function buildSeoHead(request, options = {}) {
   `;
 }
 __name(buildSeoHead, "buildSeoHead");
-function buildBreadcrumbJsonLd(request, items = []) {
-  return {
+function buildBreadcrumbJsonLd(request: Request, items: object = []) {  return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
@@ -1094,8 +1039,7 @@ function buildBreadcrumbJsonLd(request, items = []) {
   };
 }
 __name(buildBreadcrumbJsonLd, "buildBreadcrumbJsonLd");
-function buildHomeJsonLd(request) {
-  return [
+function buildHomeJsonLd(request: Request) {  return [
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -1733,8 +1677,7 @@ function buildSeoStyles() {
   `;
 }
 __name(buildSeoStyles, "buildSeoStyles");
-function htmlResponse(request, body, { status = 200, cacheControl = "no-store", scriptNonce = "", noindex = false } = {}) {
-  return applySecurityHeaders(request, new Response(body, {
+function htmlResponse(request: Request, body: str, { status: object = 200, cacheControl = "no-store", scriptNonce = "", noindex = false } = {}) {  return applySecurityHeaders(request, new Response(body, {
     status,
     headers: {
       "content-type": "text/html; charset=utf-8",
@@ -1745,8 +1688,7 @@ function htmlResponse(request, body, { status = 200, cacheControl = "no-store", 
   }));
 }
 __name(htmlResponse, "htmlResponse");
-function xmlResponse(body, cacheControl = "public, max-age=1800") {
-  return new Response(body, {
+function xmlResponse(body: str, cacheControl: str = "public, max-age=1800") {  return new Response(body, {
     headers: {
       "content-type": "application/xml; charset=utf-8",
       "cache-control": cacheControl
@@ -1754,8 +1696,7 @@ function xmlResponse(body, cacheControl = "public, max-age=1800") {
   });
 }
 __name(xmlResponse, "xmlResponse");
-function textResponse(body, cacheControl = "public, max-age=1800") {
-  return new Response(body, {
+function textResponse(body: str, cacheControl: str = "public, max-age=1800") {  return new Response(body, {
     headers: {
       "content-type": "text/plain; charset=utf-8",
       "cache-control": cacheControl
@@ -1763,8 +1704,7 @@ function textResponse(body, cacheControl = "public, max-age=1800") {
   });
 }
 __name(textResponse, "textResponse");
-function renderSeoLayout(request, options = {}) {
-  const {
+function renderSeoLayout(request: Request, options: object = {}) {  const {
     title,
     description = SITE_DESCRIPTION,
     pathname = "/",
@@ -1879,12 +1819,10 @@ function renderSeoLayout(request, options = {}) {
   return htmlResponse(request, page, { status, scriptNonce, noindex: shouldNoindex });
 }
 __name(renderSeoLayout, "renderSeoLayout");
-function isLocalHostname(hostname = "") {
-  return LOCAL_HOSTNAMES.has(String(hostname || "").toLowerCase());
+function isLocalHostname(hostname: str = "") {  return LOCAL_HOSTNAMES.has(String(hostname || "").toLowerCase());
 }
 __name(isLocalHostname, "isLocalHostname");
-function getHeaderHostname(request) {
-  const host = String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "").trim();
+function getHeaderHostname(request: Request) {  const host = String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "").trim();
   if (!host) return "";
   if (host.startsWith("[")) {
     const closingBracket = host.indexOf("]");
@@ -1893,8 +1831,7 @@ function getHeaderHostname(request) {
   return host.split(":")[0].trim().toLowerCase();
 }
 __name(getHeaderHostname, "getHeaderHostname");
-function getRequestProtocol(request) {
-  const forwardedProto = String(request.headers.get("x-forwarded-proto") || "").trim().toLowerCase();
+function getRequestProtocol(request: Request) {  const forwardedProto = String(request.headers.get("x-forwarded-proto") || "").trim().toLowerCase();
   if (forwardedProto === "http" || forwardedProto === "https") return `${forwardedProto}:`;
   try {
     return new URL(request.url).protocol;
@@ -1903,8 +1840,7 @@ function getRequestProtocol(request) {
   }
 }
 __name(getRequestProtocol, "getRequestProtocol");
-function isLocalRequest(request) {
-  try {
+function isLocalRequest(request: Request) {  try {
     const headerHostname = getHeaderHostname(request);
     if (isLocalHostname(headerHostname)) return true;
     return isLocalHostname(new URL(request.url).hostname);
@@ -1913,8 +1849,7 @@ function isLocalRequest(request) {
   }
 }
 __name(isLocalRequest, "isLocalRequest");
-function getRequestOrigin(request) {
-  const headerHostname = getHeaderHostname(request);
+function getRequestOrigin(request: Request) {  const headerHostname = getHeaderHostname(request);
   if (headerHostname && isLocalHostname(headerHostname)) {
     const host = String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "").trim();
     return `${getRequestProtocol(request)}//${host}`;
@@ -1933,13 +1868,11 @@ function getAllowedOrigins(request) {
   return origins;
 }
 __name(getAllowedOrigins, "getAllowedOrigins");
-function isTrustedOrigin(origin, request) {
-  if (!origin) return false;
+function isTrustedOrigin(origin: str, request: Request) {  if (!origin) return false;
   return getAllowedOrigins(request).has(origin);
 }
 __name(isTrustedOrigin, "isTrustedOrigin");
-function getCorsHeadersForRequest(request, { allowCredentials = false } = {}) {
-  const origin = request.headers.get("origin") || "";
+function getCorsHeadersForRequest(request: Request, { allowCredentials: object = false } = {}) {  const origin = request.headers.get("origin") || "";
   if (!isTrustedOrigin(origin, request)) return {};
   return {
     "access-control-allow-origin": origin,
@@ -1950,16 +1883,14 @@ function getCorsHeadersForRequest(request, { allowCredentials = false } = {}) {
   };
 }
 __name(getCorsHeadersForRequest, "getCorsHeadersForRequest");
-function applyTrustedCors(request, response, { allowCredentials = false } = {}) {
-  const headers = getCorsHeadersForRequest(request, { allowCredentials });
+function applyTrustedCors(request: Request, response: object, { allowCredentials: object = false } = {}) {  const headers = getCorsHeadersForRequest(request, { allowCredentials });
   if (!Object.keys(headers).length) return response;
   const next = new Response(response.body, response);
   for (const [key, value] of Object.entries(headers)) next.headers.set(key, value);
   return next;
 }
 __name(applyTrustedCors, "applyTrustedCors");
-function finalizeApiResponse(request, response, { allowCredentials = false, noindex = false } = {}) {
-  const next = new Response(response.body, response);
+function finalizeApiResponse(request: Request, response: object, { allowCredentials: object = false, noindex = false } = {}) {  const next = new Response(response.body, response);
   next.headers.delete("access-control-allow-origin");
   next.headers.delete("access-control-allow-methods");
   next.headers.delete("access-control-allow-headers");
@@ -1969,8 +1900,7 @@ function finalizeApiResponse(request, response, { allowCredentials = false, noin
   return applySecurityHeaders(request, withCors);
 }
 __name(finalizeApiResponse, "finalizeApiResponse");
-function isTrustedBrowserRequest(request) {
-  const origin = request.headers.get("origin") || "";
+function isTrustedBrowserRequest(request: Request) {  const origin = request.headers.get("origin") || "";
   if (origin) return isTrustedOrigin(origin, request);
   if (isLocalRequest(request)) return true;
   const site = String(request.headers.get("sec-fetch-site") || "").toLowerCase();
@@ -1986,22 +1916,18 @@ function constantTimeEqual(left, right) {
   return diff === 0;
 }
 __name(constantTimeEqual, "constantTimeEqual");
-function getClientIp(request) {
-  const forwarded = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
+function getClientIp(request: Request) {  const forwarded = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "";
   return String(forwarded.split(",")[0] || "").trim() || "unknown";
 }
 __name(getClientIp, "getClientIp");
-function makeSecurityError(message = "Forbidden", status = 403) {
-  return jsonNoCors({ ok: false, error: message }, status);
+function makeSecurityError(message: str = "Forbidden", status: int = 403) {  return jsonNoCors({ ok: false, error: message }, status);
 }
 __name(makeSecurityError, "makeSecurityError");
-function requireTrustedStateChange(request) {
-  if (isTrustedBrowserRequest(request)) return null;
+function requireTrustedStateChange(request: Request) {  if (isTrustedBrowserRequest(request)) return null;
   return makeSecurityError("Untrusted request origin", 403);
 }
 __name(requireTrustedStateChange, "requireTrustedStateChange");
-function isPrivilegedDebugRequest(request, env) {
-  if (isLocalRequest(request)) return true;
+function isPrivilegedDebugRequest(request: Request, env: object) {  if (isLocalRequest(request)) return true;
   const configured = String(env.ADMIN_DEBUG_TOKEN || "").trim();
   if (!configured) return false;
   const headerToken = String(request.headers.get("x-admin-debug-token") || "").trim();
@@ -2107,8 +2033,7 @@ async function recordAuthRateLimitResult(env, bucket, action, success) {
   ).bind(bucket, failures, windowStartedAt, blockedUntil, now).run();
 }
 __name(recordAuthRateLimitResult, "recordAuthRateLimitResult");
-function buildCspHeader(scriptNonce = "", { reportOnly = false } = {}) {
-  const directives = [
+function buildCspHeader(scriptNonce: str = "", { reportOnly: object = false } = {}) {  const directives = [
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
@@ -2125,8 +2050,7 @@ function buildCspHeader(scriptNonce = "", { reportOnly = false } = {}) {
   return directives.join("; ");
 }
 __name(buildCspHeader, "buildCspHeader");
-function applySecurityHeaders(request, response) {
-  const secured = new Response(response.body, response);
+function applySecurityHeaders(request: Request, response: object) {  const secured = new Response(response.body, response);
   secured.headers.set("x-content-type-options", "nosniff");
   secured.headers.set("referrer-policy", "strict-origin-when-cross-origin");
   secured.headers.set("x-frame-options", "DENY");
@@ -2181,8 +2105,7 @@ async function fetchMarketSnapshotAsset(env, path) {
   return JSON.parse(text);
 }
 __name(fetchMarketSnapshotAsset, "fetchMarketSnapshotAsset");
-function newestMarketSnapshotRows(candidates = [], market = "listed") {
-  return candidates.filter((rows) => Array.isArray(rows) && rows.length).map((rows) => {
+function newestMarketSnapshotRows(candidates: object = [], market: str = "listed") {  return candidates.filter((rows) => Array.isArray(rows) && rows.length).map((rows) => {
     const dates = rows.map((row) => normalizeMarketSnapshotQuote(row, market).date).filter(Boolean).sort();
     const latestDate = dates.at(-1) || "";
     const currentRows = latestDate ? rows.filter((row) => normalizeMarketSnapshotQuote(row, market).date === latestDate) : rows;
@@ -2190,8 +2113,7 @@ function newestMarketSnapshotRows(candidates = [], market = "listed") {
   }).sort((a, b) => a.latestDate.localeCompare(b.latestDate) || b.rows.length - a.rows.length).at(-1)?.rows || [];
 }
 __name(newestMarketSnapshotRows, "newestMarketSnapshotRows");
-function compactSourceError(error) {
-  const text = String(error?.message || error || "unknown error");
+function compactSourceError(error: object) {  const text = String(error?.message || error || "unknown error");
   const status = text.match(/\b(\d{3})\b/)?.[1] || "";
   if (/<\s*!doctype|<\s*html/i.test(text)) return status ? `HTTP ${status}` : "HTML error response";
   return text.replace(/https?:\/\/\S+/g, "").replace(/\s+/g, " ").slice(0, 120);
@@ -2241,8 +2163,7 @@ async function fetchOtcMarketSnapshot(env, errors = []) {
   return { rows: newestMarketSnapshotRows(candidates, "otc"), source: "TPEx static last-good fallback", fallback: true, warnings: errors };
 }
 __name(fetchOtcMarketSnapshot, "fetchOtcMarketSnapshot");
-function parseNum(value) {
-  if (value === null || value === void 0) return null;
+function parseNum(value: object) {  if (value === null || value === void 0) return null;
   const raw = String(value).replace(/,/g, "").trim();
   const text = /^\(.*\)$/.test(raw) ? `-${raw.slice(1, -1)}` : raw;
   if (!text || text === "-" || text === "--") return null;
@@ -2250,8 +2171,7 @@ function parseNum(value) {
   return Number.isFinite(n) ? n : null;
 }
 __name(parseNum, "parseNum");
-function formatMarketDate(value) {
-  const text = String(value || "").trim();
+function formatMarketDate(value: object) {  const text = String(value || "").trim();
   if (/^\d{7}$/.test(text)) {
     const year = Number(text.slice(0, 3)) + 1911;
     return `${String(year).padStart(4, "0")}-${text.slice(3, 5)}-${text.slice(5, 7)}`;
@@ -2268,16 +2188,14 @@ function formatMarketDate(value) {
   return text;
 }
 __name(formatMarketDate, "formatMarketDate");
-function calcPercentChange(close, change) {
-  const c = Number(close);
+function calcPercentChange(close: object, change: object) {  const c = Number(close);
   const d = Number(change);
   const prev = c - d;
   if (!Number.isFinite(c) || !Number.isFinite(d) || !Number.isFinite(prev) || prev === 0) return null;
   return d / prev * 100;
 }
 __name(calcPercentChange, "calcPercentChange");
-function taipeiParts(date = new Date()) {
-  const taipei = new Date(date.getTime() + 8 * 60 * 60 * 1e3);
+function taipeiParts(date: object = new Date()) {  const taipei = new Date(date.getTime() + 8 * 60 * 60 * 1e3);
   return {
     year: taipei.getUTCFullYear(),
     month: taipei.getUTCMonth() + 1,
@@ -2287,8 +2205,7 @@ function taipeiParts(date = new Date()) {
   };
 }
 __name(taipeiParts, "taipeiParts");
-function marketSnapshotExpectedDateTaipei(date = new Date()) {
-  const taipei = new Date(date.getTime() + 8 * 60 * 60 * 1e3);
+function marketSnapshotExpectedDateTaipei(date: object = new Date()) {  const taipei = new Date(date.getTime() + 8 * 60 * 60 * 1e3);
   const weekday = taipei.getUTCDay();
   const hour = taipei.getUTCHours();
   const target = new Date(taipei);
@@ -2300,8 +2217,7 @@ function marketSnapshotExpectedDateTaipei(date = new Date()) {
   return `${target.getUTCFullYear()}-${String(target.getUTCMonth() + 1).padStart(2, "0")}-${String(target.getUTCDate()).padStart(2, "0")}`;
 }
 __name(marketSnapshotExpectedDateTaipei, "marketSnapshotExpectedDateTaipei");
-function formatDateFromUtc(date) {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+function formatDateFromUtc(date: object) {  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 __name(formatDateFromUtc, "formatDateFromUtc");
 async function resolveMarketSnapshotExpectedDateTaipei(date = new Date()) {
@@ -2334,13 +2250,11 @@ async function resolveMarketSnapshotExpectedDateTaipei(date = new Date()) {
   }
 }
 __name(resolveMarketSnapshotExpectedDateTaipei, "resolveMarketSnapshotExpectedDateTaipei");
-function isMarketSnapshotCurrentForTaipei(data, date = new Date()) {
-  const expected = String(data?.expectedDate || marketSnapshotExpectedDateTaipei(date));
+function isMarketSnapshotCurrentForTaipei(data: object, date: object = new Date()) {  const expected = String(data?.expectedDate || marketSnapshotExpectedDateTaipei(date));
   return String(data?.listedQuoteDate || "") >= expected && String(data?.otcQuoteDate || "") >= expected;
 }
 __name(isMarketSnapshotCurrentForTaipei, "isMarketSnapshotCurrentForTaipei");
-function normalizeMarketSnapshotQuote(row, market) {
-  if (market === "otc") {
+function normalizeMarketSnapshotQuote(row: object, market: str) {  if (market === "otc") {
     const code2 = String(row?.SecuritiesCompanyCode || "").trim().toUpperCase();
     const close2 = parseNum(row?.Close);
     const change2 = parseNum(row?.Change);
@@ -2471,16 +2385,13 @@ async function buildMarketSnapshot(env) {
   };
 }
 __name(buildMarketSnapshot, "buildMarketSnapshot");
-function decodeEntities(text) {
-  return String(text || "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+function decodeEntities(text: str) {  return String(text || "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 }
 __name(decodeEntities, "decodeEntities");
-function stripTags(html) {
-  return decodeEntities(String(html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
+function stripTags(html: str) {  return decodeEntities(String(html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
 }
 __name(stripTags, "stripTags");
-function parseMopsRows(html) {
-  const rows = [];
+function parseMopsRows(html: str) {  const rows = [];
   const tableMatches = String(html || "").match(/<table[\s\S]*?<\/table>/gi) || [];
   for (const table of tableMatches) {
     const trMatches = table.match(/<tr[\s\S]*?<\/tr>/gi) || [];
@@ -2504,8 +2415,7 @@ function parseMopsRows(html) {
   return rows;
 }
 __name(parseMopsRows, "parseMopsRows");
-function recentQuarters(count = 8) {
-  const now = new Date();
+function recentQuarters(count: int = 8) {  const now = new Date();
   let year = now.getFullYear() - 1911;
   let quarter = Math.floor(now.getMonth() / 3) + 1;
   const items = [];
@@ -2520,8 +2430,7 @@ function recentQuarters(count = 8) {
   return items;
 }
 __name(recentQuarters, "recentQuarters");
-function recentAdQuarters(count = 8) {
-  const now = new Date();
+function recentAdQuarters(count: int = 8) {  const now = new Date();
   let year = now.getFullYear();
   let quarter = Math.floor(now.getMonth() / 3) + 1;
   const items = [];
@@ -2536,34 +2445,28 @@ function recentAdQuarters(count = 8) {
   return items;
 }
 __name(recentAdQuarters, "recentAdQuarters");
-function pad2(value) {
-  return String(value).padStart(2, "0");
+function pad2(value: object) {  return String(value).padStart(2, "0");
 }
 __name(pad2, "pad2");
-function quarterStartDate(year, season) {
-  return `${year}${pad2((season - 1) * 3 + 1)}01`;
+function quarterStartDate(year: object, season: str) {  return `${year}${pad2((season - 1) * 3 + 1)}01`;
 }
 __name(quarterStartDate, "quarterStartDate");
-function quarterEndDate(year, season) {
-  const month = season * 3;
+function quarterEndDate(year: object, season: str) {  const month = season * 3;
   const day = new Date(year, month, 0).getDate();
   return `${year}${pad2(month)}${pad2(day)}`;
 }
 __name(quarterEndDate, "quarterEndDate");
-function previousQuarter(year, season) {
-  return season > 1 ? { year, season: season - 1 } : { year: year - 1, season: 4 };
+function previousQuarter(year: object, season: str) {  return season > 1 ? { year, season: season - 1 } : { year: year - 1, season: 4 };
 }
 __name(previousQuarter, "previousQuarter");
-function parseAttributes(source) {
-  const attrs = {};
+function parseAttributes(source: object) {  const attrs = {};
   const re = /([\w:-]+)\s*=\s*(["'])(.*?)\2/g;
   let match;
   while (match = re.exec(source || "")) attrs[match[1]] = match[3];
   return attrs;
 }
 __name(parseAttributes, "parseAttributes");
-function parseInlineXbrlFacts(html) {
-  const facts = [];
+function parseInlineXbrlFacts(html: str) {  const facts = [];
   const re = /<ix:nonFraction\b([^>]*)>([\s\S]*?)<\/ix:nonFraction>/gi;
   let match;
   while (match = re.exec(String(html || ""))) {
@@ -2577,8 +2480,7 @@ function parseInlineXbrlFacts(html) {
   return facts;
 }
 __name(parseInlineXbrlFacts, "parseInlineXbrlFacts");
-function pickFact(facts, names, contextRefs) {
-  const nameList = Array.isArray(names) ? names : [names];
+function pickFact(facts: object, names: object, contextRefs: object) {  const nameList = Array.isArray(names) ? names : [names];
   const contextList = Array.isArray(contextRefs) ? contextRefs : [contextRefs];
   for (const name of nameList) {
     for (const contextRef of contextList) {
@@ -2655,16 +2557,13 @@ var PARENT_COMPREHENSIVE_NAMES = [
   "ifrs-full:ComprehensiveIncomeAttributableToOwnersOfParent",
   "ifrs-full:ComprehensiveIncome"
 ];
-function getPeriodFact(report, names, startDate, endDate) {
-  return pickFact(report.facts, names, [`From${startDate}To${endDate}`]);
+function getPeriodFact(report: object, names: object, startDate: object, endDate: object) {  return pickFact(report.facts, names, [`From${startDate}To${endDate}`]);
 }
 __name(getPeriodFact, "getPeriodFact");
-function getCumulativeFact(report, names) {
-  return getPeriodFact(report, names, `${report.year}0101`, quarterEndDate(report.year, report.season));
+function getCumulativeFact(report: object, names: object) {  return getPeriodFact(report, names, `${report.year}0101`, quarterEndDate(report.year, report.season));
 }
 __name(getCumulativeFact, "getCumulativeFact");
-function getQuarterFact(report, names, reportMap) {
-  const exact = getPeriodFact(report, names, quarterStartDate(report.year, report.season), quarterEndDate(report.year, report.season));
+function getQuarterFact(report: object, names: object, reportMap: object) {  const exact = getPeriodFact(report, names, quarterStartDate(report.year, report.season), quarterEndDate(report.year, report.season));
   if (Number.isFinite(exact)) return exact;
   const cumulative = getCumulativeFact(report, names);
   if (!Number.isFinite(cumulative)) return null;
@@ -2675,8 +2574,7 @@ function getQuarterFact(report, names, reportMap) {
   return Number.isFinite(prevCumulative) ? cumulative - prevCumulative : null;
 }
 __name(getQuarterFact, "getQuarterFact");
-function trailingQuarters(year, season, count) {
-  const items = [];
+function trailingQuarters(year: object, season: str, count: int) {  const items = [];
   let y = Number(year);
   let s = Number(season);
   while (items.length < count && Number.isFinite(y) && Number.isFinite(s)) {
@@ -2688,8 +2586,7 @@ function trailingQuarters(year, season, count) {
   return items;
 }
 __name(trailingQuarters, "trailingQuarters");
-function buildMopsOvRoeQuarters(quarters, reportMap) {
-  return quarters.map((quarter) => {
+function buildMopsOvRoeQuarters(quarters: object, reportMap: object) {  return quarters.map((quarter) => {
     const report = reportMap.get(`${quarter.year}Q${quarter.season}`);
     if (!report) {
       return {
@@ -2793,8 +2690,7 @@ var MOPS_OPENAPI_FAMILIES = [
   { income: "https://openapi.twse.com.tw/v1/opendata/t187ap06_L_ins", balance: "https://openapi.twse.com.tw/v1/opendata/t187ap07_L_ins" },
   { income: "https://openapi.twse.com.tw/v1/opendata/t187ap06_L_mim", balance: "https://openapi.twse.com.tw/v1/opendata/t187ap07_L_mim" }
 ];
-function mopsOpenApiMoney(row, needles) {
-  const value = parseNum(pickRowValue(row, needles));
+function mopsOpenApiMoney(row: object, needles: object) {  const value = parseNum(pickRowValue(row, needles));
   return Number.isFinite(value) ? value * 1e3 : null;
 }
 __name(mopsOpenApiMoney, "mopsOpenApiMoney");
@@ -2864,8 +2760,7 @@ async function fetchMopsOpenApiFinancials(code) {
   };
 }
 __name(fetchMopsOpenApiFinancials, "fetchMopsOpenApiFinancials");
-function mergeOfficialMopsHistory(current, history) {
-  const latest = { ...history.latest, ...current.latest };
+function mergeOfficialMopsHistory(current: object, history: object) {  const latest = { ...history.latest, ...current.latest };
   for (const key of ["parentEquity", "otherEquity", "bookValuePerShare", "treasuryShares", "parentNetIncome", "parentComprehensiveIncome", "totalOtherComprehensiveIncome"]) {
     if (!Number.isFinite(current.latest?.[key]) && Number.isFinite(history.latest?.[key])) latest[key] = history.latest[key];
   }
@@ -2911,41 +2806,34 @@ async function fetchOfficialMopsFinancials(code, { includeHistory = false } = {}
   }
 }
 __name(fetchOfficialMopsFinancials, "fetchOfficialMopsFinancials");
-function pickRowValue(row, needles) {
-  for (const [key, value] of Object.entries(row || {})) {
+function pickRowValue(row: object, needles: object) {  for (const [key, value] of Object.entries(row || {})) {
     const normalized = String(key).replace(/\s+/g, "");
     if (needles.some((needle) => normalized.includes(needle))) return value;
   }
   return void 0;
 }
 __name(pickRowValue, "pickRowValue");
-function normalizeMopsCode(row) {
-  return String(pickRowValue(row, ["SecuritiesCompanyCode", "\u516C\u53F8\u4EE3\u865F", "\u4EE3\u865F", "Code"]) || "").trim();
+function normalizeMopsCode(row: object) {  return String(pickRowValue(row, ["SecuritiesCompanyCode", "\u516C\u53F8\u4EE3\u865F", "\u4EE3\u865F", "Code"]) || "").trim();
 }
 __name(normalizeMopsCode, "normalizeMopsCode");
-function pickMopsParentNetIncome(row = {}) {
-  return parseNum(pickRowValue(row, ["\u6BCD\u516C\u53F8\u7A05\u5F8C\u6DE8\u5229", "\u7A05\u5F8C\u6DE8\u5229", "NetIncome", "Profit", "Income"]));
+function pickMopsParentNetIncome(row: object = {}) {  return parseNum(pickRowValue(row, ["\u6BCD\u516C\u53F8\u7A05\u5F8C\u6DE8\u5229", "\u7A05\u5F8C\u6DE8\u5229", "NetIncome", "Profit", "Income"]));
 }
 __name(pickMopsParentNetIncome, "pickMopsParentNetIncome");
-function pickMopsParentEquity(row = {}) {
-  return parseNum(pickRowValue(row, ["\u6BCD\u516C\u53F8\u80A1\u6771\u6B0A\u76CA", "\u80A1\u6771\u6B0A\u76CA", "Equity", "OwnersOfParent"]));
+function pickMopsParentEquity(row: object = {}) {  return parseNum(pickRowValue(row, ["\u6BCD\u516C\u53F8\u80A1\u6771\u6B0A\u76CA", "\u80A1\u6771\u6B0A\u76CA", "Equity", "OwnersOfParent"]));
 }
 __name(pickMopsParentEquity, "pickMopsParentEquity");
-function pickMopsOtherEquity(row = {}) {
-  const value = pickRowValue(row, ["\u5176\u4ED6\u6B0A\u76CA\u9805\u76EE", "\u5176\u4ED6\u6B0A\u76CA", "OtherEquity"]);
+function pickMopsOtherEquity(row: object = {}) {  const value = pickRowValue(row, ["\u5176\u4ED6\u6B0A\u76CA\u9805\u76EE", "\u5176\u4ED6\u6B0A\u76CA", "OtherEquity"]);
   const n = parseNum(value);
   return Number.isFinite(n) ? Math.abs(n) : null;
 }
 __name(pickMopsOtherEquity, "pickMopsOtherEquity");
-function pickMopsOtherComprehensiveIncome(row = {}) {
-  const parentComprehensiveIncome = parseNum(pickRowValue(row, ["\u672C\u671F\u5176\u4ED6\u7D9C\u5408\u640D\u76CA", "OtherComprehensiveIncome", "ComprehensiveIncome"]));
+function pickMopsOtherComprehensiveIncome(row: object = {}) {  const parentComprehensiveIncome = parseNum(pickRowValue(row, ["\u672C\u671F\u5176\u4ED6\u7D9C\u5408\u640D\u76CA", "OtherComprehensiveIncome", "ComprehensiveIncome"]));
   const parentNetIncome = pickMopsParentNetIncome(row);
   if (Number.isFinite(parentComprehensiveIncome) && Number.isFinite(parentNetIncome)) return parentComprehensiveIncome - parentNetIncome;
   return parseNum(pickRowValue(row, ["\u5176\u4ED6\u7D9C\u5408\u640D\u76CA", "OtherComprehensiveIncome"]));
 }
 __name(pickMopsOtherComprehensiveIncome, "pickMopsOtherComprehensiveIncome");
-function calcMopsTrailingParentNetIncome(code, incomeMaps) {
-  const latest = incomeMaps[0];
+function calcMopsTrailingParentNetIncome(code: str, incomeMaps: object) {  const latest = incomeMaps[0];
   const latestValue = pickMopsParentNetIncome(latest?.map.get(code) || {});
   if (!Number.isFinite(latestValue)) return null;
   if (Number(latest.season) === 4) return latestValue;
@@ -3053,8 +2941,7 @@ async function healthCheck(env) {
   });
 }
 __name(healthCheck, "healthCheck");
-function getPublicSecurityConfig(request, env) {
-  const authReady = Boolean(env?.DB);
+function getPublicSecurityConfig(request: Request, env: object) {  const authReady = Boolean(env?.DB);
   return {
     ok: true,
     turnstileEnabled: false,
@@ -3188,24 +3075,20 @@ var PODCAST_MONEYDJ_INDUSTRY_ALIASES = [
   { terms: ["PMIC", "Power"], categoryNames: ["PMIC", "Power"] },
   { terms: ["AI", "server", "NVIDIA"], categoryNames: ["AI \u4F3A\u670D\u5668"] }
 ];
-function podcastTextIncludes(text, aliases = []) {
-  return aliases.some((term) => term && String(text || "").includes(term));
+function podcastTextIncludes(text: str, aliases: object = []) {  return aliases.some((term) => term && String(text || "").includes(term));
 }
 __name(podcastTextIncludes, "podcastTextIncludes");
-function podcastPreview(text, length = 360) {
-  return String(text || "").replace(/\s+/g, " ").trim().slice(0, length);
+function podcastPreview(text: str, length: int = 360) {  return String(text || "").replace(/\s+/g, " ").trim().slice(0, length);
 }
 __name(podcastPreview, "podcastPreview");
-function podcastDisplayTitle(source = {}) {
-  const markdown = String(source.bodyText || source.bodyPreview || "");
+function podcastDisplayTitle(source: object = {}) {  const markdown = String(source.bodyText || source.bodyPreview || "");
   const match = markdown.match(/(?:^|\r?\n)\s*#\s+([^\r\n]+)/);
   const heading = String(match?.[1] || "").replace(/\s+/g, " ").trim();
   if (heading.length >= 6 && heading.length <= 160 && !/^EP\s*0*\d+$/i.test(heading)) return heading;
   return String(source.title || source.display_title || "").replace(/\s+/g, " ").trim();
 }
 __name(podcastDisplayTitle, "podcastDisplayTitle");
-function podcastArchiveExcerpt(source = {}) {
-  const excerpt = String(source.excerpt || source.summary || source.description || "").replace(/\s+/g, " ").trim();
+function podcastArchiveExcerpt(source: object = {}) {  const excerpt = String(source.excerpt || source.summary || source.description || "").replace(/\s+/g, " ").trim();
   if (!excerpt) return "";
   if (/(?:\u672C\u96C6\u7BC0\u76EE\u7531|\u672C\u96C6\u7531|\u8D0A\u52A9|\u512A\u60E0\u78BC|https?:\/\/)/i.test(excerpt)) {
     return "\u5167\u5BB9\u542B\u5408\u4F5C\u8A0A\u606F\uFF1B\u9EDE\u958B\u95B1\u8B80\u672C\u96C6\u91CD\u9EDE\u8207\u5EF6\u4F38\u8CC7\u6599\u3002";
@@ -3213,17 +3096,14 @@ function podcastArchiveExcerpt(source = {}) {
   return excerpt;
 }
 __name(podcastArchiveExcerpt, "podcastArchiveExcerpt");
-function stripMoneyDjHtml(value) {
-  return String(value || "").replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+function stripMoneyDjHtml(value: str) {  return String(value || "").replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 }
 __name(stripMoneyDjHtml, "stripMoneyDjHtml");
-function parseMoneyDjNumber(value) {
-  const number = Number(stripMoneyDjHtml(value).replace(/,/g, "").replace(/%/g, ""));
+function parseMoneyDjNumber(value: str) {  const number = Number(stripMoneyDjHtml(value).replace(/,/g, "").replace(/%/g, ""));
   return Number.isFinite(number) ? number : null;
 }
 __name(parseMoneyDjNumber, "parseMoneyDjNumber");
-function moneyDjAbsoluteUrl(value) {
-  return new URL(value, "https://www.moneydj.com").href;
+function moneyDjAbsoluteUrl(value: str) {  return new URL(value, "https://www.moneydj.com").href;
 }
 __name(moneyDjAbsoluteUrl, "moneyDjAbsoluteUrl");
 async function fetchMoneyDjHtml(url) {
@@ -3237,8 +3117,7 @@ async function fetchMoneyDjHtml(url) {
   return new TextDecoder("big5").decode(await response.arrayBuffer());
 }
 __name(fetchMoneyDjHtml, "fetchMoneyDjHtml");
-function parseMoneyDjIndustryIndex(html) {
-  const categories = [];
+function parseMoneyDjIndustryIndex(html: str) {  const categories = [];
   const seen = new Set();
   const pattern = /<a\s+href="([^"]*zh00\.djhtm\?a=[^"]+)"[^>]*>([^<]+)<\/a>/gi;
   let match;
@@ -3253,8 +3132,7 @@ function parseMoneyDjIndustryIndex(html) {
   return categories;
 }
 __name(parseMoneyDjIndustryIndex, "parseMoneyDjIndustryIndex");
-function parseMoneyDjCategoryRows(html, category) {
-  const rows = [];
+function parseMoneyDjCategoryRows(html: str, category: str) {  const rows = [];
   const trPattern = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
   let trMatch;
   while (trMatch = trPattern.exec(String(html || ""))) {
@@ -3285,8 +3163,7 @@ function parseMoneyDjCategoryRows(html, category) {
   return rows;
 }
 __name(parseMoneyDjCategoryRows, "parseMoneyDjCategoryRows");
-function isFreshCacheStamp(cacheUpdatedAt, ttlMs = MONEYDJ_CACHE_TTL_MS) {
-  const time = Date.parse(cacheUpdatedAt || "");
+function isFreshCacheStamp(cacheUpdatedAt: str, ttlMs: int = MONEYDJ_CACHE_TTL_MS) {  const time = Date.parse(cacheUpdatedAt || "");
   return Number.isFinite(time) && Date.now() - time < ttlMs;
 }
 __name(isFreshCacheStamp, "isFreshCacheStamp");
@@ -3350,15 +3227,13 @@ async function loadMoneyDjCategory(env, category, options = {}) {
   return promise;
 }
 __name(loadMoneyDjCategory, "loadMoneyDjCategory");
-function findMoneyDjManualRule(categoryName, matchedTerms = []) {
-  return PODCAST_INDUSTRY_RULES.find((rule) => {
+function findMoneyDjManualRule(categoryName: str, matchedTerms: object = []) {  return PODCAST_INDUSTRY_RULES.find((rule) => {
     const aliases = [rule.name, ...rule.aliases || []].filter(Boolean);
     return aliases.includes(categoryName) || matchedTerms.some((term) => aliases.includes(term)) || aliases.some((alias) => categoryName.includes(alias) || alias.includes(categoryName));
   }) || null;
 }
 __name(findMoneyDjManualRule, "findMoneyDjManualRule");
-function selectMoneyDjPodcastCategories(bodyText, indexData) {
-  const text = String(bodyText || "");
+function selectMoneyDjPodcastCategories(bodyText: str, indexData: object) {  const text = String(bodyText || "");
   const categories = Array.isArray(indexData?.categories) ? indexData.categories : [];
   const byName = new Map(categories.map((category) => [category.name, category]));
   const selected = new Map();
@@ -3413,16 +3288,14 @@ async function buildMoneyDjPodcastIndustries(bodyText, env, options = {}) {
   }).filter(Boolean);
 }
 __name(buildMoneyDjPodcastIndustries, "buildMoneyDjPodcastIndustries");
-function cleanPodcastError(error) {
-  const raw = String(error?.message || error || "").replace(/\s+/g, " ").trim();
+function cleanPodcastError(error: object) {  const raw = String(error?.message || error || "").replace(/\s+/g, " ").trim();
   const status = raw.match(/StockHomes\s+HTTP\s+(\d{3})/i) || raw.match(/\bHTTP\s+(\d{3})\b/i);
   if (status) return `StockHomes HTTP ${status[1]}`;
   const withoutHtml = raw.replace(/<!doctype[\s\S]*/i, "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return withoutHtml || "PODCAST source fetch failed";
 }
 __name(cleanPodcastError, "cleanPodcastError");
-function buildPodcastLatestFallbackFromStockTrackerData(data, ep = "") {
-  const records = Array.isArray(data?.records) ? data.records : [];
+function buildPodcastLatestFallbackFromStockTrackerData(data: object, ep: str = "") {  const records = Array.isArray(data?.records) ? data.records : [];
   if (!records.length) return null;
   const targetEpisode = ep ? Number(normalizePodcastEp(ep)) : Number(records.find((record) => Number.isFinite(Number(record?.episode)))?.episode);
   if (!Number.isFinite(targetEpisode)) return null;
@@ -3467,53 +3340,44 @@ function buildPodcastLatestFallbackFromStockTrackerData(data, ep = "") {
   };
 }
 __name(buildPodcastLatestFallbackFromStockTrackerData, "buildPodcastLatestFallbackFromStockTrackerData");
-function hasPodcastTrackerRecords(data) {
-  return Array.isArray(data?.records) && data.records.length > 0;
+function hasPodcastTrackerRecords(data: object) {  return Array.isArray(data?.records) && data.records.length > 0;
 }
 __name(hasPodcastTrackerRecords, "hasPodcastTrackerRecords");
-function hasPodcastAnalysisContent(data) {
-  const stocks = data?.analysis?.stocks;
+function hasPodcastAnalysisContent(data: object) {  const stocks = data?.analysis?.stocks;
   const industries = data?.analysis?.industries;
   const bodyLength = Number(data?.source?.bodyTextLength || 0);
   return Array.isArray(stocks) && stocks.length > 0 || Array.isArray(industries) && industries.length > 0 || bodyLength > 0;
 }
 __name(hasPodcastAnalysisContent, "hasPodcastAnalysisContent");
-function extractSoundOnLinks(html = "") {
-  return [...String(html || "").matchAll(/href="([^"]+)"/g)].map((match) => match[1]).filter((href) => /soundon|rssFileVip|mp3/i.test(href)).filter((href, index, list) => list.indexOf(href) === index).slice(0, 6);
+function extractSoundOnLinks(html: str = "") {  return [...String(html || "").matchAll(/href="([^"]+)"/g)].map((match) => match[1]).filter((href) => /soundon|rssFileVip|mp3/i.test(href)).filter((href, index, list) => list.indexOf(href) === index).slice(0, 6);
 }
 __name(extractSoundOnLinks, "extractSoundOnLinks");
-function podcastAudioLabel(url = "", index = 0) {
-  if (/player\.soundon\.fm/i.test(url)) return "在 SoundOn 收聽（離開本站）";
+function podcastAudioLabel(url: str = "", index: int = 0) {  if (/player\.soundon\.fm/i.test(url)) return "在 SoundOn 收聽（離開本站）";
   if (/rssFileVip|\.mp3(?:$|\?)/i.test(url)) return "在外部音訊服務播放（離開本站）";
   return `開啟外部音訊 ${index + 1}（離開本站）`;
 }
 __name(podcastAudioLabel, "podcastAudioLabel");
-function normalizePodcastEp(value) {
-  const digits = String(value || "").replace(/\D/g, "");
+function normalizePodcastEp(value: object) {  const digits = String(value || "").replace(/\D/g, "");
   return digits ? String(Number(digits)).padStart(4, "0") : "";
 }
 __name(normalizePodcastEp, "normalizePodcastEp");
-function podcastEpisodeCacheKey(ep) {
-  return `${PODCAST_EPISODE_CACHE_PREFIX}${Number(normalizePodcastEp(ep))}`;
+function podcastEpisodeCacheKey(ep: str) {  return `${PODCAST_EPISODE_CACHE_PREFIX}${Number(normalizePodcastEp(ep))}`;
 }
 __name(podcastEpisodeCacheKey, "podcastEpisodeCacheKey");
-function findPodcastReport(reports, ep = "") {
-  const items = Array.isArray(reports) ? reports.filter((item) => item?.category === "mk") : [];
+function findPodcastReport(reports: object, ep: str = "") {  const items = Array.isArray(reports) ? reports.filter((item) => item?.category === "mk") : [];
   if (!ep) return items[0] || null;
   const padded = normalizePodcastEp(ep);
   return items.find((item) => podcastEpisodeNumber(item) === Number(padded)) || null;
 }
 __name(findPodcastReport, "findPodcastReport");
-function podcastEpisodeNumber(item = {}) {
-  const direct = Number(item.number);
+function podcastEpisodeNumber(item: object = {}) {  const direct = Number(item.number);
   if (Number.isFinite(direct)) return direct;
   const text = `${item.title || ""} ${item.url || ""} ${item.sourcePath || ""}`;
   const match = text.match(/EP\s*0*(\d+)/i) || text.match(/ep0*(\d+)/i);
   return match ? Number(match[1]) : null;
 }
 __name(podcastEpisodeNumber, "podcastEpisodeNumber");
-function toISODate(value) {
-  const text = String(value || "").trim();
+function toISODate(value: object) {  const text = String(value || "").trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
   if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(text)) {
     const [year, month, day] = text.split("/");
@@ -3524,8 +3388,7 @@ function toISODate(value) {
   return "";
 }
 __name(toISODate, "toISODate");
-function rocDateToISO(value) {
-  const text = String(value || "").trim();
+function rocDateToISO(value: object) {  const text = String(value || "").trim();
   const slash = text.match(/^(\d{2,3})\/(\d{1,2})\/(\d{1,2})$/);
   if (slash) {
     const year = Number(slash[1]) + 1911;
@@ -3535,8 +3398,7 @@ function rocDateToISO(value) {
   return toISODate(text);
 }
 __name(rocDateToISO, "rocDateToISO");
-function addMonthsToISO(dateISO, offset) {
-  const [year, month] = String(dateISO || "").split("-").map(Number);
+function addMonthsToISO(dateISO: str, offset: int) {  const [year, month] = String(dateISO || "").split("-").map(Number);
   if (!year || !month) return "";
   const date = new Date(Date.UTC(year, month - 1 + offset, 1));
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -3568,43 +3430,36 @@ async function fetchEpisodeClose(code, dateISO, cache) {
   return row ? { price: row.close, date: row.date, source: "TWSE STOCK_DAY" } : null;
 }
 __name(fetchEpisodeClose, "fetchEpisodeClose");
-function normalizeHistoryMarket(ex) {
-  return ex === "o" || ex === "otc" ? "otc" : "listed";
+function normalizeHistoryMarket(ex: str) {  return ex === "o" || ex === "otc" ? "otc" : "listed";
 }
 __name(normalizeHistoryMarket, "normalizeHistoryMarket");
-function clampHistoryMonths(value) {
-  const n = Math.floor(Number(value));
+function clampHistoryMonths(value: object) {  const n = Math.floor(Number(value));
   if (!Number.isFinite(n)) return 6;
   return Math.min(HISTORY_CACHE_MAX_MONTHS, Math.max(1, n));
 }
 __name(clampHistoryMonths, "clampHistoryMonths");
-function recentHistoryMonthKeys(count = 6) {
-  const now = new Date();
+function recentHistoryMonthKeys(count: int = 6) {  const now = new Date();
   return Array.from({ length: clampHistoryMonths(count) }, (_, index) => {
     const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - index, 1));
     return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
   }).reverse();
 }
 __name(recentHistoryMonthKeys, "recentHistoryMonthKeys");
-function currentTaipeiMonthKey(date = new Date()) {
-  const parts = taipeiParts(date);
+function currentTaipeiMonthKey(date: object = new Date()) {  const parts = taipeiParts(date);
   return `${parts.year}-${String(parts.month).padStart(2, "0")}`;
 }
 __name(currentTaipeiMonthKey, "currentTaipeiMonthKey");
-function latestHistoryDateForMonth(rows, monthKey) {
-  const monthRows = (rows || []).filter((row) => String(row?.date || "").startsWith(`${monthKey}-`));
+function latestHistoryDateForMonth(rows: object, monthKey: str) {  const monthRows = (rows || []).filter((row) => String(row?.date || "").startsWith(`${monthKey}-`));
   return monthRows.length ? String(monthRows.at(-1)?.date || "") : "";
 }
 __name(latestHistoryDateForMonth, "latestHistoryDateForMonth");
-function nextMonthKey(monthKey) {
-  const [year, month] = String(monthKey || "").split("-").map(Number);
+function nextMonthKey(monthKey: str) {  const [year, month] = String(monthKey || "").split("-").map(Number);
   if (!year || !month) return "";
   const date = new Date(Date.UTC(year, month, 1));
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 __name(nextMonthKey, "nextMonthKey");
-function historyRawKey(market, code, monthKey) {
-  return `stock-history/${market}/${code}/${monthKey}.json`;
+function historyRawKey(market: str, code: str, monthKey: str) {  return `stock-history/${market}/${code}/${monthKey}.json`;
 }
 __name(historyRawKey, "historyRawKey");
 async function ensureStockHistoryTables(env) {
@@ -3654,8 +3509,7 @@ async function readHistoryRows(env, code, market, monthKeys) {
   return result.results || [];
 }
 __name(readHistoryRows, "readHistoryRows");
-function loadedHistoryMonths(rows) {
-  return new Set((rows || []).map((row) => String(row.date || "").slice(0, 7)).filter(Boolean));
+function loadedHistoryMonths(rows: object) {  return new Set((rows || []).map((row) => String(row.date || "").slice(0, 7)).filter(Boolean));
 }
 __name(loadedHistoryMonths, "loadedHistoryMonths");
 async function readRawHistoryMonth(env, market, code, monthKey) {
@@ -3688,8 +3542,7 @@ async function fetchRawHistoryMonth(market, code, monthKey) {
   return JSON.parse(text.trim());
 }
 __name(fetchRawHistoryMonth, "fetchRawHistoryMonth");
-function parseHistoryMonthRows(raw, market) {
-  const sourceRows = market === "otc" ? raw?.tables?.[0]?.data || [] : raw?.data || [];
+function parseHistoryMonthRows(raw: object, market: str) {  const sourceRows = market === "otc" ? raw?.tables?.[0]?.data || [] : raw?.data || [];
   return sourceRows.map((row) => {
     const volume = parseNum(row[1]);
     const amount = parseNum(row[2]);
@@ -3811,8 +3664,7 @@ async function buildKLineHistory(env, code, market, months, force = false) {
   };
 }
 __name(buildKLineHistory, "buildKLineHistory");
-async function handleKLine(request, env) {
-  const url = new URL(request.url);
+async function handleKLine(request: Request, env: object): Response {  const url = new URL(request.url);
   const code = String(url.searchParams.get("code") || "").trim().toUpperCase();
   const market = normalizeHistoryMarket(url.searchParams.get("market") || url.searchParams.get("ex") || "t");
   const months = clampHistoryMonths(url.searchParams.get("months") || 6);
@@ -3874,16 +3726,14 @@ async function fetchPodcastBackupBody(filename) {
   return response.text();
 }
 __name(fetchPodcastBackupBody, "fetchPodcastBackupBody");
-function podcastReportUrl(item = {}) {
-  const reportUrl = String(item.reportUrl || item.url || "").trim();
+function podcastReportUrl(item: object = {}) {  const reportUrl = String(item.reportUrl || item.url || "").trim();
   if (!reportUrl) return "";
   if (/^https?:\/\//i.test(reportUrl)) return reportUrl;
   const base = item.sourceSite === "whatmkreallysaid" ? PODCAST_BACKUP_SITE : PODCAST_PRIMARY_SITE;
   return new URL(reportUrl.replace(/^\/+/, ""), `${base}/`).href;
 }
 __name(podcastReportUrl, "podcastReportUrl");
-function normalizeBackupEpisode(item = {}, bodyText = "") {
-  const episode = Number(item.number);
+function normalizeBackupEpisode(item: object = {}, bodyText: str = "") {  const episode = Number(item.number);
   if (!Number.isFinite(episode)) return null;
   const titleCore = String(item.display_title || item.title || "").trim();
   return {
@@ -3909,12 +3759,10 @@ function normalizeBackupEpisode(item = {}, bodyText = "") {
   };
 }
 __name(normalizeBackupEpisode, "normalizeBackupEpisode");
-function podcastBodyLength(item = {}) {
-  return String(item?.bodyText || "").trim().length;
+function podcastBodyLength(item: object = {}) {  return String(item?.bodyText || "").trim().length;
 }
 __name(podcastBodyLength, "podcastBodyLength");
-function extractPodcastReportBody(html = "") {
-  const article = String(html || "").match(/<article\b[^>]*>([\s\S]*?)<\/article>/i);
+function extractPodcastReportBody(html: str = "") {  const article = String(html || "").match(/<article\b[^>]*>([\s\S]*?)<\/article>/i);
   return article ? stripMoneyDjHtml(article[1].replace(/<\/?(?:br|p|div|li|h[1-6])\b[^>]*>/gi, " ")) : "";
 }
 __name(extractPodcastReportBody, "extractPodcastReportBody");
@@ -4011,8 +3859,7 @@ async function refreshPodcastEpisodesCache(env) {
   });
 }
 __name(refreshPodcastEpisodesCache, "refreshPodcastEpisodesCache");
-async function handlePodcastEpisodes(env) {
-  const cached = await readPodcastCacheByKey(env, PODCAST_EPISODES_CACHE_KEY);
+async function handlePodcastEpisodes(env: object): Response {  const cached = await readPodcastCacheByKey(env, PODCAST_EPISODES_CACHE_KEY);
   if (cached?.ok && Array.isArray(cached.episodes)) return json(cached);
   try {
     return json(await refreshPodcastEpisodesCache(env));
@@ -4021,14 +3868,12 @@ async function handlePodcastEpisodes(env) {
   }
 }
 __name(handlePodcastEpisodes, "handlePodcastEpisodes");
-function extractEpisodeNumber(value = "") {
-  const text = String(value || "");
+function extractEpisodeNumber(value: str = "") {  const text = String(value || "");
   const match = text.match(/(?:EP\s*|ep\s*|\/)(\d{2,5})(?:\.html)?/);
   return match ? Number(match[1]) : 0;
 }
 __name(extractEpisodeNumber, "extractEpisodeNumber");
-function latestPodcastEpisodeFromLatestCache(data = {}) {
-  return Number(data?.source?.number) || extractEpisodeNumber(data?.source?.title) || extractEpisodeNumber(data?.source?.url) || 0;
+function latestPodcastEpisodeFromLatestCache(data: object = {}) {  return Number(data?.source?.number) || extractEpisodeNumber(data?.source?.title) || extractEpisodeNumber(data?.source?.url) || 0;
 }
 __name(latestPodcastEpisodeFromLatestCache, "latestPodcastEpisodeFromLatestCache");
 async function buildPodcastStockTracker() {
@@ -4159,8 +4004,7 @@ async function fetchPodcastLatestAnalysis(ep = "", env = {}, options = {}) {
   };
 }
 __name(fetchPodcastLatestAnalysis, "fetchPodcastLatestAnalysis");
-function podcastAnalysisFallback({ episode = "", title = "", fallback = "", stocks = [], industries = [] } = {}) {
-  const summary = String(fallback || "").trim() || "本集逐字稿目前沒有足夠內容可供分析，請回到原始音訊或逐字稿確認。";
+function podcastAnalysisFallback({ episode: object = "", title = "", fallback = "", stocks = [], industries = [] } = {}) {  const summary = String(fallback || "").trim() || "本集逐字稿目前沒有足夠內容可供分析，請回到原始音訊或逐字稿確認。";
   const stockText = stocks.length ? stocks.join("、") : "本集未解析出明確個股或 ETF";
   const industryText = industries.length ? industries.join("、") : "本集未比對到明確產業分類";
   return {
@@ -4187,8 +4031,7 @@ function podcastAnalysisFallback({ episode = "", title = "", fallback = "", stoc
   };
 }
 __name(podcastAnalysisFallback, "podcastAnalysisFallback");
-function normalizePodcastTaiwanText(value = "") {
-  let text = String(value || "");
+function normalizePodcastTaiwanText(value: str = "") {  let text = String(value || "");
   for (const [from, to] of [
     ["人工智能", "人工智慧"], ["是什么", "是什麼"], ["通过", "透過"], ["行业", "產業"],
     ["数据", "資料"], ["信息", "資訊"], ["软件", "軟體"], ["硬件", "硬體"],
@@ -4200,8 +4043,7 @@ function normalizePodcastTaiwanText(value = "") {
   return text.replace(/\bindustry\b/gi, "產業").replace(/[么这为个发时从会应关过产国资业与术实进选问将点体万并开还当无风机现长听对买卖见块单来让头则于动录划验绝认证]/g, (item) => traditional[simplified.indexOf(item)] || item).trim();
 }
 __name(normalizePodcastTaiwanText, "normalizePodcastTaiwanText");
-function normalizePodcastAiAnalysis(value, fallbackAnalysis) {
-  try {
+function normalizePodcastAiAnalysis(value: object, fallbackAnalysis: object) {  try {
     const text = String(value || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     const parsed = typeof value === "object" && value ? value : JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
     const questions = (Array.isArray(parsed?.questions) ? parsed.questions : []).map((item, index) => ({
@@ -4305,13 +4147,11 @@ async function writeAppCacheByKey(env, key, data) {
   return { ...data, updatedAt };
 }
 __name(writeAppCacheByKey, "writeAppCacheByKey");
-function stockQueryCacheKey(code, ex) {
-  const market = ex === "o" || ex === "otc" ? "o" : "t";
+function stockQueryCacheKey(code: str, ex: str) {  const market = ex === "o" || ex === "otc" ? "o" : "t";
   return `${STOCK_QUERY_CACHE_PREFIX}${String(code || "").trim().toUpperCase()}:${market}`;
 }
 __name(stockQueryCacheKey, "stockQueryCacheKey");
-async function handleStockCache(request, env) {
-  const url = new URL(request.url);
+async function handleStockCache(request: Request, env: object): Response {  const url = new URL(request.url);
   if (request.method === "GET") {
     const code = String(url.searchParams.get("code") || "").trim().toUpperCase();
     const ex = String(url.searchParams.get("ex") || "t").trim().toLowerCase();
@@ -4423,8 +4263,7 @@ async function readMarketSnapshotCache(env) {
   return objectCached;
 }
 __name(readMarketSnapshotCache, "readMarketSnapshotCache");
-async function handleMarketSnapshot(request, env) {
-  const force = new URL(request.url).searchParams.get("force") === "1";
+async function handleMarketSnapshot(request: Request, env: object): Response {  const force = new URL(request.url).searchParams.get("force") === "1";
   if (force) {
     const fresh = await refreshMarketSnapshotCache(env);
     return json(fresh, 200, fresh.stale ? { "x-tq-stale": "1" } : {});
@@ -4465,24 +4304,20 @@ async function readPodcastEditorial(env) {
   }
 }
 __name(readPodcastEditorial, "readPodcastEditorial");
-function isPodcastEditorialReviewed(entry) {
-  return entry?.status === "reviewed" && entry?.authorApproved === true;
+function isPodcastEditorialReviewed(entry: object) {  return entry?.status === "reviewed" && entry?.authorApproved === true;
 }
 __name(isPodcastEditorialReviewed, "isPodcastEditorialReviewed");
-function industryPathFromCategory(category = {}) {
-  return `/industry/${encodeURIComponent(String(category.code || "").trim())}`;
+function industryPathFromCategory(category: object = {}) {  return `/industry/${encodeURIComponent(String(category.code || "").trim())}`;
 }
 __name(industryPathFromCategory, "industryPathFromCategory");
-function companyField(row, keys) {
-  for (const key of keys) {
+function companyField(row: object, keys: object) {  for (const key of keys) {
     const value = row?.[key];
     if (value !== null && value !== void 0 && String(value).trim()) return String(value).trim();
   }
   return "";
 }
 __name(companyField, "companyField");
-function companyDateField(value) {
-  const text = String(value || "").replace(/\D/g, "");
+function companyDateField(value: object) {  const text = String(value || "").replace(/\D/g, "");
   if (/^\d{8}$/.test(text)) return `${text.slice(0, 4)}-${text.slice(4, 6)}-${text.slice(6, 8)}`;
   if (/^\d{7}$/.test(text)) return `${Number(text.slice(0, 3)) + 1911}-${text.slice(3, 5)}-${text.slice(5, 7)}`;
   return String(value || "").trim();
@@ -4580,18 +4415,15 @@ async function fetchStockOperatingRows(market) {
   return metrics;
 }
 __name(fetchStockOperatingRows, "fetchStockOperatingRows");
-function findQuoteByCode(snapshot, code) {
-  const quotes = Array.isArray(snapshot?.quotes) ? snapshot.quotes : [];
+function findQuoteByCode(snapshot: object, code: str) {  const quotes = Array.isArray(snapshot?.quotes) ? snapshot.quotes : [];
   return quotes.find((item) => String(item.code || "").trim().toUpperCase() === String(code || "").trim().toUpperCase()) || null;
 }
 __name(findQuoteByCode, "findQuoteByCode");
-function realtimeChannelForQuote(code, market) {
-  const prefix = market === "otc" ? "otc" : "tse";
+function realtimeChannelForQuote(code: str, market: str) {  const prefix = market === "otc" ? "otc" : "tse";
   return `${prefix}_${String(code || "").trim().toUpperCase()}.tw`;
 }
 __name(realtimeChannelForQuote, "realtimeChannelForQuote");
-function normalizeMisQuote(row, fallback = {}) {
-  const price = parseNum(row?.z);
+function normalizeMisQuote(row: object, fallback: object = {}) {  const price = parseNum(row?.z);
   const prevClose = parseNum(row?.y ?? fallback.prevClose);
   const lastPrice = Number.isFinite(price) && price > 0 ? price : null;
   const close = lastPrice ?? parseNum(row?.y ?? fallback.close);
@@ -4724,12 +4556,10 @@ async function fetchStockSeoPayload(env, code, months = 3, includeFinancialHisto
   };
 }
 __name(fetchStockSeoPayload, "fetchStockSeoPayload");
-function renderStockMetric(label, value, tone = "flat") {
-  return `<div class="seo-metric"><div class="seo-metric-label">${escapeHtml(label)}</div><div class="seo-metric-value ${tone}">${escapeHtml(value)}</div></div>`;
+function renderStockMetric(label: str, value: object, tone: str = "flat") {  return `<div class="seo-metric"><div class="seo-metric-label">${escapeHtml(label)}</div><div class="seo-metric-value ${tone}">${escapeHtml(value)}</div></div>`;
 }
 __name(renderStockMetric, "renderStockMetric");
-function renderStockCanvasChart(kline, limit = 60, suffix = "3m") {
-  const sourceRows = (Array.isArray(kline?.rows) ? kline.rows : []).filter((row) => Number.isFinite(parseNum(row?.close)));
+function renderStockCanvasChart(kline: object, limit: int = 60, suffix: str = "3m") {  const sourceRows = (Array.isArray(kline?.rows) ? kline.rows : []).filter((row) => Number.isFinite(parseNum(row?.close)));
   const rows = Number.isFinite(limit) ? sourceRows.slice(-limit) : sourceRows;
   if (rows.length < 2) return '<p class="seo-note">近 60 日價格資料暫時無法取得。</p>';
   const values = rows.map((row) => parseNum(row.close));
@@ -4743,8 +4573,7 @@ function renderStockCanvasChart(kline, limit = 60, suffix = "3m") {
   return `<svg class="stock-canvas-chart-svg" viewBox="0 0 700 230" role="img" aria-label="${escapeHtml(rows.length)} 個交易日收盤價走勢"><defs><linearGradient id="stockCanvasArea-${escapeHtml(suffix)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3472f" stop-opacity=".16"/><stop offset="1" stop-color="#e3472f" stop-opacity="0"/></linearGradient></defs><path d="M58 198 H678 M58 118 H678 M58 38 H678" stroke="#ddd5c9" stroke-width="1"/><polygon points="58,204 ${points} 678,204" fill="url(#stockCanvasArea-${escapeHtml(suffix)})"/><polyline points="${points}" fill="none" stroke="#e3472f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><g fill="#69757d" font-size="12"><text x="8" y="202">${escapeHtml(formatSeoNumber(min, 0))}</text><text x="8" y="122">${escapeHtml(formatSeoNumber((min + max) / 2, 0))}</text><text x="8" y="42">${escapeHtml(formatSeoNumber(max, 0))}</text><text x="58" y="226">${labels[0]}</text><text x="340" y="226">${labels[1]}</text><text x="642" y="226">${labels[2]}</text></g><g transform="translate(625 ${Math.max(22, Math.min(190, lastY - 11))})"><rect width="53" height="22" rx="4" fill="#e3472f"/><text x="26.5" y="15" text-anchor="middle" fill="white" font-size="11">${escapeHtml(formatSeoNumber(last, 2))}</text></g></svg>`;
 }
 __name(renderStockCanvasChart, "renderStockCanvasChart");
-async function serveHomeSpaPage(request, env) {
-  const requestPath = new URL(request.url).pathname;
+async function serveHomeSpaPage(request: Request, env: object): Response {  const requestPath = new URL(request.url).pathname;
   const pathname = requestPath.length > 1 ? requestPath.replace(/\/+$/, "") || "/" : requestPath;
   const [html, tokensCss, siteCss, vueShellJs, appJs] = await Promise.all([
     fetchAssetText(env, "/index.html"),
@@ -4799,8 +4628,7 @@ async function serveHomeSpaPage(request, env) {
   return htmlResponse(request, next, { scriptNonce, noindex });
 }
 __name(serveHomeSpaPage, "serveHomeSpaPage");
-async function serveStockPage(request, env, code) {
-  const payload = await fetchStockSeoPayload(env, code, 24, true);
+async function serveStockPage(request: Request, env: object, code: str): Response {  const payload = await fetchStockSeoPayload(env, code, 24, true);
   if (!payload?.quote) return renderSeoLayout(request, {
     title: "找不到股票資料 | TWETQ",
     description: "找不到指定的股票資料。",
@@ -4909,8 +4737,7 @@ async function serveStockPage(request, env, code) {
   });
 }
 __name(serveStockPage, "serveStockPage");
-async function serveIndustryPage(request, env, categoryCode) {
-  const index = await loadMoneyDjIndustryIndex(env);
+async function serveIndustryPage(request: Request, env: object, categoryCode: str): Response {  const index = await loadMoneyDjIndustryIndex(env);
   const category = (index?.categories || []).find((item) => String(item.code || "").trim() === categoryCode);
   if (!category) return renderSeoLayout(request, {
     title: "找不到產業資料 | TWETQ",
@@ -4984,8 +4811,7 @@ async function serveIndustryPage(request, env, categoryCode) {
   });
 }
 __name(serveIndustryPage, "serveIndustryPage");
-async function servePodcastPage(request, env, ep) {
-  const episodeKey = podcastEpisodeCacheKey(ep);
+async function servePodcastPage(request: Request, env: object, ep: str): Response {  const episodeKey = podcastEpisodeCacheKey(ep);
   const episodeCache = await readPodcastCacheByKey(env, episodeKey).catch(() => null);
   const latestCache = episodeCache ? null : await readPodcastCache(env).catch(() => null);
   let payload = hasPodcastAnalysisContent(episodeCache)
@@ -5136,16 +4962,14 @@ async function servePodcastPage(request, env, ep) {
   });
 }
 __name(servePodcastPage, "servePodcastPage");
-async function serveRobotsTxt(request) {
-  const sitemapUrl = buildAbsoluteUrl(request, "/sitemap.xml");
+async function serveRobotsTxt(request: Request): Response {  const sitemapUrl = buildAbsoluteUrl(request, "/sitemap.xml");
   return textResponse(`User-agent: *
 Allow: /
 Sitemap: ${sitemapUrl}
 `);
 }
 __name(serveRobotsTxt, "serveRobotsTxt");
-async function serveSitemapXml(request, env) {
-  const urls = [];
+async function serveSitemapXml(request: Request, env: object): Response {  const urls = [];
   const pushUrl = __name((path, lastmod = "", priority = "0.6") => {
     urls.push({ loc: buildAbsoluteUrl(request, path), lastmod, priority });
   }, "pushUrl");
@@ -5169,8 +4993,7 @@ ${urls.map((item) => `  <url><loc>${escapeHtml(item.loc)}</loc>${item.lastmod ? 
   return xmlResponse(xml, "no-store");
 }
 __name(serveSitemapXml, "serveSitemapXml");
-function serveOgCard(request) {
-  const url = new URL(request.url);
+function serveOgCard(request: Request): Response {  const url = new URL(request.url);
   const title = truncateText(url.searchParams.get("title") || SITE_NAME, 48);
   const subtitle = truncateText(url.searchParams.get("subtitle") || SITE_DESCRIPTION, 74);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -5197,8 +5020,7 @@ function serveOgCard(request) {
   });
 }
 __name(serveOgCard, "serveOgCard");
-async function handlePodcastLatest(request, env) {
-  const url = new URL(request.url);
+async function handlePodcastLatest(request: Request, env: object): Response {  const url = new URL(request.url);
   const force = url.searchParams.get("refresh") === "1" && isPrivilegedDebugRequest(request, env);
   const ep = normalizePodcastEp(url.searchParams.get("ep") || "");
   const withFreshness = __name((data) => {
@@ -5262,8 +5084,7 @@ async function handlePodcastLatest(request, env) {
   }
 }
 __name(handlePodcastLatest, "handlePodcastLatest");
-async function handlePodcastStocks(request, env) {
-  const url = new URL(request.url);
+async function handlePodcastStocks(request: Request, env: object): Response {  const url = new URL(request.url);
   const force = url.searchParams.get("refresh") === "1";
   const readAsset = __name(async () => {
     return readPodcastStockTrackerAsset(env, url.origin);
@@ -5293,8 +5114,7 @@ async function handlePodcastStocks(request, env) {
   }
 }
 __name(handlePodcastStocks, "handlePodcastStocks");
-function institutionalDateParts(value) {
-  const iso = formatMarketDate(value);
+function institutionalDateParts(value: object) {  const iso = formatMarketDate(value);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
   return {
     iso,
@@ -5303,12 +5123,10 @@ function institutionalDateParts(value) {
   };
 }
 __name(institutionalDateParts, "institutionalDateParts");
-function isInstitutionalCommonStock(code) {
-  return /^[1-9]\d{3}$/.test(String(code || "").trim());
+function isInstitutionalCommonStock(code: str) {  return /^[1-9]\d{3}$/.test(String(code || "").trim());
 }
 __name(isInstitutionalCommonStock, "isInstitutionalCommonStock");
-function normalizeInstitutionalQuote(row, market) {
-  const listed = market === "listed";
+function normalizeInstitutionalQuote(row: object, market: str) {  const listed = market === "listed";
   const code = String(listed ? row?.Code : row?.SecuritiesCompanyCode || "").trim();
   const close = parseNum(listed ? row?.ClosingPrice : row?.Close);
   const change = parseNum(row?.Change);
@@ -5323,8 +5141,7 @@ function normalizeInstitutionalQuote(row, market) {
   };
 }
 __name(normalizeInstitutionalQuote, "normalizeInstitutionalQuote");
-function normalizeTwseInstitutionalDay(payload) {
-  const rows = Array.isArray(payload?.data) ? payload.data : [];
+function normalizeTwseInstitutionalDay(payload: object) {  const rows = Array.isArray(payload?.data) ? payload.data : [];
   const normalized = rows.filter((row) => isInstitutionalCommonStock(row?.[0])).map((row) => ({
     code: String(row[0]).trim(),
     name: String(row[1] || "").trim(),
@@ -5339,8 +5156,7 @@ function normalizeTwseInstitutionalDay(payload) {
   };
 }
 __name(normalizeTwseInstitutionalDay, "normalizeTwseInstitutionalDay");
-function normalizeTpexInstitutionalDay(payload) {
-  const table = Array.isArray(payload?.tables) ? payload.tables.find((item) => Array.isArray(item?.data)) : null;
+function normalizeTpexInstitutionalDay(payload: object) {  const table = Array.isArray(payload?.tables) ? payload.tables.find((item) => Array.isArray(item?.data)) : null;
   const normalized = (table?.data || []).filter((row) => isInstitutionalCommonStock(row?.[0])).map((row) => ({
     code: String(row[0]).trim(),
     name: String(row[1] || "").trim(),
@@ -5355,8 +5171,7 @@ function normalizeTpexInstitutionalDay(payload) {
   };
 }
 __name(normalizeTpexInstitutionalDay, "normalizeTpexInstitutionalDay");
-function normalizeTpexInstitutionalOpenApi(rows) {
-  const normalized = (Array.isArray(rows) ? rows : []).filter((row) => isInstitutionalCommonStock(row?.SecuritiesCompanyCode)).map((row) => ({
+function normalizeTpexInstitutionalOpenApi(rows: object) {  const normalized = (Array.isArray(rows) ? rows : []).filter((row) => isInstitutionalCommonStock(row?.SecuritiesCompanyCode)).map((row) => ({
     code: String(row.SecuritiesCompanyCode).trim(),
     name: String(row.CompanyName || "").trim(),
     foreign: parseNum(row["ForeignInvestorsInclude MainlandAreaInvestors-Difference"] ?? row["Foreign Investors include Mainland Area Investors (Foreign Dealers excluded)-Difference"]) || 0,
@@ -5371,8 +5186,7 @@ function normalizeTpexInstitutionalOpenApi(rows) {
   };
 }
 __name(normalizeTpexInstitutionalOpenApi, "normalizeTpexInstitutionalOpenApi");
-function summarizeInstitutionalAmounts(payload) {
-  const rows = Array.isArray(payload?.data) ? payload.data : [];
+function summarizeInstitutionalAmounts(payload: object) {  const rows = Array.isArray(payload?.data) ? payload.data : [];
   const amountFor = (matcher) => rows.filter((row) => matcher(String(row?.[0] || ""))).reduce((sum, row) => sum + (parseNum(row?.[3]) || 0), 0);
   return {
     foreign: amountFor((name) => name.startsWith("外資")),
@@ -5382,8 +5196,7 @@ function summarizeInstitutionalAmounts(payload) {
   };
 }
 __name(summarizeInstitutionalAmounts, "summarizeInstitutionalAmounts");
-function institutionalStreak(history, code, field) {
-  const current = history[0]?.get(code)?.[field] || 0;
+function institutionalStreak(history: object, code: str, field: str) {  const current = history[0]?.get(code)?.[field] || 0;
   const direction = Math.sign(current);
   if (!direction) return { direction: "flat", days: 0 };
   let days = 0;
@@ -5395,8 +5208,7 @@ function institutionalStreak(history, code, field) {
   return { direction: direction > 0 ? "buy" : "sell", days };
 }
 __name(institutionalStreak, "institutionalStreak");
-function buildInstitutionalRankings(day, quotes, history, market, options = {}) {
-  const quoteMap = new Map(quotes.map((quote) => [quote.code, quote]));
+function buildInstitutionalRankings(day: object, quotes: object, history: object, market: str, options: object = {}) {  const quoteMap = new Map(quotes.map((quote) => [quote.code, quote]));
   const build = (field, direction) => day.rows.map((row) => ({
     code: row.code,
     name: row.name,
@@ -5412,8 +5224,7 @@ function buildInstitutionalRankings(day, quotes, history, market, options = {}) 
   };
 }
 __name(buildInstitutionalRankings, "buildInstitutionalRankings");
-function summarizeMarketBreadth(quotes) {
-  return quotes.reduce((summary, quote) => {
+function summarizeMarketBreadth(quotes: object) {  return quotes.reduce((summary, quote) => {
     if (!Number.isFinite(quote.change)) return summary;
     if (quote.change > 0) summary.up += 1;
     else if (quote.change < 0) summary.down += 1;
@@ -5425,24 +5236,21 @@ function summarizeMarketBreadth(quotes) {
   }, { up: 0, down: 0, flat: 0, limitUp: 0, limitDown: 0 });
 }
 __name(summarizeMarketBreadth, "summarizeMarketBreadth");
-function institutionalDateShift(iso, days) {
-  const parts = institutionalDateParts(iso);
+function institutionalDateShift(iso: str, days: int) {  const parts = institutionalDateParts(iso);
   if (!parts) return "";
   const date = new Date(`${parts.iso}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
   return formatDateFromUtc(date);
 }
 __name(institutionalDateShift, "institutionalDateShift");
-function institutionalFuturesParty(value) {
-  const label = String(value || "").trim();
+function institutionalFuturesParty(value: object) {  const label = String(value || "").trim();
   if (label.startsWith("外資")) return "foreign";
   if (label.includes("投信")) return "trust";
   if (label.startsWith("自營商")) return "dealer";
   return "";
 }
 __name(institutionalFuturesParty, "institutionalFuturesParty");
-function parseTaifexInstitutionalFuturesCsv(csv, session) {
-  return String(csv || "").replace(/^\uFEFF/, "").split(/\r?\n/).slice(1).map((line) => line.trim()).filter(Boolean).map((line) => {
+function parseTaifexInstitutionalFuturesCsv(csv: str, session: str) {  return String(csv || "").replace(/^\uFEFF/, "").split(/\r?\n/).slice(1).map((line) => line.trim()).filter(Boolean).map((line) => {
     const cells = line.split(",").map((cell) => cell.trim().replace(/^"|"$/g, ""));
     const party = institutionalFuturesParty(cells[2]);
     if (!party || !String(cells[1] || "").includes("臺股期貨")) return null;
@@ -5493,8 +5301,7 @@ async function fetchTaifexInstitutionalFuturesCsv(startIso, endIso, session, tim
   }
 }
 __name(fetchTaifexInstitutionalFuturesCsv, "fetchTaifexInstitutionalFuturesCsv");
-function normalizeTaifexInstitutionalFuturesOpenApi(rows) {
-  return (Array.isArray(rows) ? rows : []).map((row) => {
+function normalizeTaifexInstitutionalFuturesOpenApi(rows: object) {  return (Array.isArray(rows) ? rows : []).map((row) => {
     if (!String(row?.ContractCode || "").includes("臺股期貨")) return null;
     const party = institutionalFuturesParty(row?.Item);
     if (!party) return null;
@@ -5513,8 +5320,7 @@ function normalizeTaifexInstitutionalFuturesOpenApi(rows) {
   }).filter(Boolean);
 }
 __name(normalizeTaifexInstitutionalFuturesOpenApi, "normalizeTaifexInstitutionalFuturesOpenApi");
-function summarizeTaifexInstitutionalFutures(dayRows, nightRows) {
-  const latestDayDate = dayRows.map((row) => row.date).filter(Boolean).sort().at(-1) || "";
+function summarizeTaifexInstitutionalFutures(dayRows: object, nightRows: object) {  const latestDayDate = dayRows.map((row) => row.date).filter(Boolean).sort().at(-1) || "";
   const latestNightDate = nightRows.map((row) => row.date).filter(Boolean).sort().at(-1) || "";
   const previousDayDate = [...new Set(dayRows.map((row) => row.date).filter(Boolean))].sort().at(-2) || "";
   const dayCurrent = dayRows.filter((row) => row.date === latestDayDate);
@@ -5547,8 +5353,7 @@ function summarizeTaifexInstitutionalFutures(dayRows, nightRows) {
   };
 }
 __name(summarizeTaifexInstitutionalFutures, "summarizeTaifexInstitutionalFutures");
-function institutionalCandidateDates(startIso, limit = 10) {
-  const parts = institutionalDateParts(startIso);
+function institutionalCandidateDates(startIso: str, limit: int = 10) {  const parts = institutionalDateParts(startIso);
   if (!parts) return [];
   const cursor = new Date(`${parts.iso}T00:00:00Z`);
   const dates = [];
@@ -5560,8 +5365,7 @@ function institutionalCandidateDates(startIso, limit = 10) {
   return dates;
 }
 __name(institutionalCandidateDates, "institutionalCandidateDates");
-function institutionalSharedData(twseQuotes, tpexQuotes, twseDay, tpexDay) {
-  const quoteRows = [
+function institutionalSharedData(twseQuotes: object, tpexQuotes: object, twseDay: object, tpexDay: object) {  const quoteRows = [
     ...twseQuotes.map((row) => ({ ...row, market: "listed" })),
     ...tpexQuotes.map((row) => ({ ...row, market: "otc" }))
   ];
@@ -5733,8 +5537,7 @@ async function refreshInstitutionalRadarCache(env) {
   return stored;
 }
 __name(refreshInstitutionalRadarCache, "refreshInstitutionalRadarCache");
-async function handleInstitutionalRadar(request, env) {
-  if (request.method !== "GET" && request.method !== "HEAD") return jsonNoCors({ ok: false, error: "Method not allowed" }, 405);
+async function handleInstitutionalRadar(request: Request, env: object): Response {  if (request.method !== "GET" && request.method !== "HEAD") return jsonNoCors({ ok: false, error: "Method not allowed" }, 405);
   if (institutionalRadarCache && Date.now() - institutionalRadarCache.cachedAt <= INSTITUTIONAL_RADAR_CACHE_TTL_MS && await institutionalRadarCurrentForTaipei(institutionalRadarCache.payload)) {
     return jsonNoCors({ ...institutionalRadarCache.payload, cacheStatus: "memory" });
   }
