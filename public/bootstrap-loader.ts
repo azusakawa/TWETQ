@@ -16,7 +16,7 @@
     (bundle as HTMLScriptElement).src = "/vendor/bootstrap.bundle.min.js?v=5.3.8";
     (bundle as HTMLScriptElement).onload = () => {
       const adapter = document.createElement("script");
-      (adapter as HTMLScriptElement).src = "/bootstrap-adapter.js?v=20260905-free-site-v1";
+      (adapter as HTMLScriptElement).src = "/bootstrap-adapter.ts?v=20260905-free-site-v1";
       (adapter as HTMLScriptElement).onload = () => {
         const reference = document.createElement("script");
         (reference as HTMLScriptElement).src = "/staging-reference.js?v=20260905-free-site-v1";
