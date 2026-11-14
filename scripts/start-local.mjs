@@ -128,7 +128,7 @@ async function fetchAsset(request) {
   }
   try {
     if (statSync(filePath).isDirectory()) filePath = resolve(filePath, "index.html");
-    const body = readFileSync(filePath);
+    const body = readFileSync(filePath, "utf-8");
     return new Response(request.method === "HEAD" ? null : body, {
       status: 200,
       headers: {
