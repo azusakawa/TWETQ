@@ -9,6 +9,8 @@
         "build:bootstrap": "sass --style=compressed --no-source-map --quiet-deps --silence-deprecation=import,global-builtin,color-functions,if-function styles/bootstrap-twetq.scss public/vendor/bootstrap-twetq.min.css",
         "verify:bootstrap-ui": "node scripts/verify-bootstrap-ui.mjs",
         "check": "npm run build:bootstrap && node --check src/worker.js && node --check public/sw.js && node --check public/vue-shell.js && node --check public/bootstrap-loader.js && node --check public/bootstrap-adapter.js && node --check public/staging-reference.js && node --check scripts/start-local.mjs",
+        "build:ts": "npx tsc -p tsconfig.json",
+        "typecheck": "npx tsc --noEmit",
         "bot": "node scripts/bots/index.mjs",
         "bot:market": "node scripts/bots/market-bot.mjs",
         "bot:financial": "node scripts/bots/financial-bot.mjs",
@@ -20,10 +22,15 @@
         "bot:verify": "node scripts/bots/verification-bot.mjs"
     },
     "devDependencies": {
+        "@types/express": "^5.0.6",
+        "@types/node": "^26.6.6",
+        "@types/vue-router": "^2.0.0",
         "sass": "^1.102.0",
+        "typescript": "^7.0.2",
         "wrangler": "^4.156.0"
     },
     "dependencies": {
+        "@typescript/typescript-win32-x64": "^7.0.2",
         "bootstrap": "5.3.8",
         "vue": "3.5.40"
     }
