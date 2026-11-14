@@ -1705,7 +1705,7 @@ const function renderSeoLayout(request: Request: Request, options: object: objec
     <link rel="stylesheet" href="/tokens.css?v=20260726-mobile-style-v1" />
     <link rel="stylesheet" href="/lofi.css?v=20260905-free-site-v1" />
     <link id="bootstrapCoreStyles" rel="stylesheet" href="/vendor/bootstrap-twetq.min.css?v=20260819-bootstrap-production-v1" media="not all" />
-    <script src="/bootstrap-loader.js?v=20260905-free-site-v1"></script>
+    <script src="/bootstrap-loader.ts?v=20260905-free-site-v1"></script>
     <style>${buildSeoStyles()}</style>
   </head>
   <body data-mode="${pageMode}"${referencePageClass ? ` class="${referencePageClass}"` : ""}>
@@ -1764,7 +1764,7 @@ const function renderSeoLayout(request: Request: Request, options: object: objec
     </footer>
     </div>
     <script src="/vendor/vue.global.prod.js?v=3.5.40"></script>
-    <script src="/vue-shell.js?v=20260905-free-site-v1"></script>
+    <script src="/vue-shell.ts?v=20260905-free-site-v1"></script>
   </body>
 </html>`;
   return htmlResponse(request, page, { status, scriptNonce, noindex: shouldNoindex });
@@ -4436,8 +4436,8 @@ async function serveHomeSpaPage(request: Request, env: object): Response {  cons
     fetchAssetText(env, "/index.html"),
     fetchAssetText(env, "/tokens.css"),
     fetchAssetText(env, "/lofi.css"),
-    fetchAssetText(env, "/vue-shell.js"),
-    fetchAssetText(env, "/app.js")
+    fetchAssetText(env, "/vue-shell.ts"),
+    fetchAssetText(env, "/app.ts")
   ]);
   const snapshot = pathname === "/" ? await readMarketSnapshotCache(env).catch(() => null) : null;
   const indexes = pathname === "/" ? getCachedMarketIndexes() : null;
@@ -4483,8 +4483,8 @@ async function serveHomeSpaPage(request: Request, env: object): Response {  cons
   const next = html
     .replace(/<link rel="stylesheet" href="\/tokens\.css[^"]*" \/>/, `<style data-twetq-inline="tokens">${tokensCss.replace(/<\/style/gi, "<\\/style")}</style>`)
     .replace(/<link rel="stylesheet" href="\/lofi\.css[^"]*" \/>/, `<style data-twetq-inline="site">${siteCss.replace(/<\/style/gi, "<\\/style")}</style>`)
-    .replace(/<script src="\/vue-shell\.js[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="shell">${vueShellJs.replace(/<\/script/gi, "<\\/script")}</script>`)
-    .replace(/<script src="\/app\.js[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="app">${appJs.replace(/<\/script/gi, "<\\/script")}</script>`)
+    .replace(/<script src="\/vue-shell\.ts[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="shell">${vueShellJs.replace(/<\/script/gi, "<\\/script")}</script>`)
+    .replace(/<script src="\/app\.ts[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="app">${appJs.replace(/<\/script/gi, "<\\/script")}</script>`)
     .replace(/<title>[\s\S]*?<\/title>/i, `<title>${pageTitle}</title>`)
     .replace("</head>", `${meta}${summary}</head>`)
     .replace('<section id="resultSlot"></section>', `<section id="resultSlot">${crawlerSummary}</section>`);

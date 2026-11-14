@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFileSync, statSync, existsSync, writeFileSync } from "node:fs";
+import { readFileSync, statSync, existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { dirname, extname, resolve, sep } from "node:path";
@@ -114,19 +114,17 @@ async function fetchAsset(request) {
   if (!target) return new Response("Bad Request", { status: 400 });
 
   let filePath = target;
-  // 如果 .ts 版本更新，直接 serve .ts 檔案（strip TypeScript 語法後當 JavaScript 執行）
-  const tsPath = filePath.replace(/\.js$/, '.ts');
-  if (tsPath !== filePath && existsSync(tsPath)) {
-    const tsStat = statSync(tsPath);
-    const jsStat = statSync(filePath);
-    if (tsStat.mtimeMs > jsStat.mtimeMs) {
-      // 從 .ts 檔案轉譯為 JavaScript 後 serve
-      const tsContent = readFileSync(tsPath, 'utf-8');
-      // 移除 @ts-nocheck 和型別註解，寫入 app.js 供下次直接使用
-      const jsContent = stripTypeScript(tsContent);
-      writeFileSync(filePath, jsContent);
-      filePath = tsPath; // 繼續使用 .ts 路徑（內容已轉譯）
-    }
+  const isTsRequest = extname(filePath).toLowerCase() === ".ts";
+  if (isTsRequest && existsSync(filePath)) {
+    const tsContent = readFileSync(filePath, "utf-8");
+    const jsContent = stripTypeScript(tsContent);
+    return new Response(request.method === "HEAD" ? null : jsContent, {
+      status: 200,
+      headers: {
+        "cache-control": "public, max-age=3600",
+        "content-type": "application/javascript; charset=utf-8",
+      },
+    });
   }
   try {
     if (statSync(filePath).isDirectory()) filePath = resolve(filePath, "index.html");
