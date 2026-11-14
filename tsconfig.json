@@ -21,24 +21,23 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./public",
+    "outDir": "./dist",
     "rootDir": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "sourceRoot": "."
+    }
   },
   "include": [
     "src/**/*.ts", "!src/worker.ts", "!src/worker-github.ts",
     "scripts/**/*.ts",
-    "scripts/**/*.mts",
-    "public/**/*.ts"
+    "scripts/**/*.mts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     ".local-data",
     ".local-state",
+    "public",
     "migrations",
     "src/worker.ts",
     "src/worker-github.ts"
