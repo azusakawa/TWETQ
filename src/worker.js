@@ -1784,7 +1784,7 @@ function buildSeoStyles() {
 __name(buildSeoStyles, "buildSeoStyles");
 function htmlResponse(request, body, { status: object = 200, cacheControl = "no-store", scriptNonce = "", noindex = false } = {}) {
     return applySecurityHeaders(request, new Response(body, {
-        status,
+        status: object,
         headers: {
             "content-type": "text/html; charset=utf-8",
             "cache-control": cacheControl,
@@ -2165,7 +2165,7 @@ function buildCspHeader(scriptNonce = "", { reportOnly: object = false } = {}) {
         "connect-src 'self'",
         "frame-src https://www.google.com"
     ];
-    if (!reportOnly)
+    if (!object)
         directives.push("upgrade-insecure-requests");
     return directives.join("; ");
 }
