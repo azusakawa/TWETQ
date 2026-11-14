@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, statSync, existsSync, writeFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { dirname, extname, resolve, sep } from "node:path";
@@ -13,6 +13,24 @@ const databasePath = resolve(localDataDir, "twetq.sqlite");
 const host = "127.0.0.1";
 const port = Number(process.env.PORT || 8787);
 const maxBodyBytes = 2 * 1024 * 1024;
+
+// 從 TypeScript 源碼轉譯為 JavaScript
+function stripTypeScript(tsContent) {
+  return tsContent
+    // 移除 @ts-nocheck 註解
+    .replace(/^\/\/ @ts-nocheck\n/, '')
+    // 移除函數參數的型別註解: (param: Type) → (param)
+    .replace(/:(\s*)([A-Za-z<>\[\]|&,? ]+)(\s*)[\),]/g, '$1$3)')
+    // 移除回傳型別: { → {
+    .replace(/:\s*(Promise<Response>|Response|string|number|boolean|void|unknown|any|\{[^}]*\}|[A-Z][A-Za-z<>\[\]|&,? ]*)(\s*\{)/g, '$2')
+    // 移除 as casts: as SomeType
+    .replace(/ as [A-Za-z<>\[\]|&,? ]+/g, '')
+    // 移除 interface/type 宣告
+    .replace(/^(interface|type)\s+\w+[^{]*\{[^}]*\}/gms, '')
+    // 移除 const/let/var 的型別註解
+    .replace(/:\s*(Array<[^>]+>|string|number|boolean|void|any|unknown|\{[^}]*\}|[A-Z][A-Za-z<>\[\]|&,? ]*)/g, '')
+    ;
+}
 
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -96,6 +114,20 @@ async function fetchAsset(request) {
   if (!target) return new Response("Bad Request", { status: 400 });
 
   let filePath = target;
+  // 如果 .ts 版本更新，直接 serve .ts 檔案（strip TypeScript 語法後當 JavaScript 執行）
+  const tsPath = filePath.replace(/\.js$/, '.ts');
+  if (tsPath !== filePath && existsSync(tsPath)) {
+    const tsStat = statSync(tsPath);
+    const jsStat = statSync(filePath);
+    if (tsStat.mtimeMs > jsStat.mtimeMs) {
+      // 從 .ts 檔案轉譯為 JavaScript 後 serve
+      const tsContent = readFileSync(tsPath, 'utf-8');
+      // 移除 @ts-nocheck 和型別註解，寫入 app.js 供下次直接使用
+      const jsContent = stripTypeScript(tsContent);
+      writeFileSync(filePath, jsContent);
+      filePath = tsPath; // 繼續使用 .ts 路徑（內容已轉譯）
+    }
+  }
   try {
     if (statSync(filePath).isDirectory()) filePath = resolve(filePath, "index.html");
     const body = readFileSync(filePath);
