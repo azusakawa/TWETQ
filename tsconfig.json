@@ -28,7 +28,7 @@
     }
   },
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts", "!src/worker.ts", "!src/worker-github.ts",
     "scripts/**/*.ts",
     "scripts/**/*.mts"
   ],
@@ -38,6 +38,8 @@
     ".local-data",
     ".local-state",
     "public",
-    "migrations"
+    "migrations",
+    "src/worker.ts",
+    "src/worker-github.ts"
   ]
 }
