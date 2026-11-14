@@ -1,5 +1,9 @@
+// Bootstrap UI Adapter - TypeScript 版本
+// Adds Bootstrap CSS classes to existing HTML elements
+
 (() => {
-  const add = (root, selector, ...classes) => root.querySelectorAll(selector).forEach((node) => node.classList.add(...classes));
+  const add = (root: Element, selector: string, ...classes: string[]) =>
+    root.querySelectorAll(selector).forEach((node) => node.classList.add(...classes));
 
   const enhanceShell = () => {
     add(document, ".shell", "container-fluid", "twetq-shell");
@@ -14,7 +18,7 @@
     add(document, ".footer-links", "d-flex", "flex-wrap", "gap-2", "gap-md-3");
   };
 
-  const enhance = (root = document) => {
+  const enhance = (root: Element = document) => {
     add(root, "input:not([type='checkbox']):not([type='radio']), textarea", "form-control");
     add(root, "select", "form-select");
     add(root, ".run-button, .home-action-primary, .seo-button", "btn");
@@ -41,5 +45,5 @@
   new MutationObserver(syncActiveNavigation).observe(document.body, { attributes: true, attributeFilter: ["data-mode"] });
 
   const resultSlot = document.querySelector("#resultSlot");
-  if (resultSlot) new MutationObserver(() => enhance(resultSlot)).observe(resultSlot, { childList: true, subtree: true });
+  if (resultSlot) new MutationObserver(() => enhance(resultSlot as Element)).observe(resultSlot as Element, { childList: true, subtree: true });
 })();

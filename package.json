@@ -7,18 +7,30 @@
         "start": "node scripts/start-local.mjs",
         "dev": "node scripts/start-local.mjs",
         "build:bootstrap": "sass --style=compressed --no-source-map --quiet-deps --silence-deprecation=import,global-builtin,color-functions,if-function styles/bootstrap-twetq.scss public/vendor/bootstrap-twetq.min.css",
-        "refresh:tpex": "node scripts/refresh-tpex-data.mjs",
-        "verify:ads-txt": "node scripts/verify-ads-txt.mjs",
         "verify:bootstrap-ui": "node scripts/verify-bootstrap-ui.mjs",
-        "verify:sponsorship": "node scripts/verify-voluntary-sponsorship.mjs",
-        "verify:newbie-ux": "node scripts/verify-newbie-ux.mjs",
-        "verify:data-freshness": "node scripts/verify-data-freshness.mjs",
-        "check": "npm run build:bootstrap && node --check src/worker.js && node --check public/app.js && node --check public/sw.js && node --check public/vue-shell.js && node --check public/bootstrap-loader.js && node --check public/bootstrap-adapter.js && node --check public/staging-reference.js && node --check scripts/start-local.mjs && npm run verify:data-freshness && npm run verify:newbie-ux && npm run verify:sponsorship && npm run verify:ads-txt && npm run verify:bootstrap-ui"
+        "check": "npm run build:bootstrap && node --check src/worker.js && node --check public/sw.js && node --check public/vue-shell.js && node --check public/bootstrap-loader.js && node --check public/bootstrap-adapter.js && node --check public/staging-reference.js && node --check scripts/start-local.mjs",
+        "build:ts": "npx tsc -p tsconfig.json",
+        "typecheck": "npx tsc --noEmit",
+        "bot": "node scripts/bots/index.mjs",
+        "bot:market": "node scripts/bots/market-bot.mjs",
+        "bot:financial": "node scripts/bots/financial-bot.mjs",
+        "bot:institutional": "node scripts/bots/institutional-bot.mjs",
+        "bot:podcast": "node scripts/bots/podcast-bot.mjs",
+        "bot:screener": "node scripts/bots/screener-bot.mjs",
+        "bot:kline": "node scripts/bots/kline-bot.mjs",
+        "bot:refresh": "node scripts/bots/data-refresh-bot.mjs",
+        "bot:verify": "node scripts/bots/verification-bot.mjs"
     },
     "devDependencies": {
-        "sass": "^1.102.0"
+        "@types/express": "^5.0.6",
+        "@types/node": "^26.6.6",
+        "@types/vue-router": "^2.0.0",
+        "sass": "^1.102.0",
+        "typescript": "^7.0.2",
+        "wrangler": "^4.156.0"
     },
     "dependencies": {
+        "@typescript/typescript-win32-x64": "^7.0.2",
         "bootstrap": "5.3.8",
         "vue": "3.5.40"
     }
