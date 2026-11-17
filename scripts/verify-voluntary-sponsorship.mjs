@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 const app = readFileSync(new URL("../public/app.js", import.meta.url), "utf8");
 const index = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
 const reference = readFileSync(new URL("../public/staging-reference.js", import.meta.url), "utf8");
-const worker = readFileSync(new URL("../src/worker.js", import.meta.url), "utf8");
+const workerRaw = readFileSync(new URL("../src/worker.js", import.meta.url), "utf8");
+// worker.js 以 \uXXXX 轉義保存中文，比對前先還原成字元
+const worker = workerRaw.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 const footerNotice = "本站資料來源為臺灣證券交易所 OpenAPI、櫃買中心 OpenAPI。本站僅供個人學術研究與 Podcast 脈絡整理之非營利加值使用，不保證資料之絕對正確性，亦不構成任何投資建議。";
 const forbiddenPayment = /payment\.opay\.tw|PAYUNi|payuni\.com\.tw|歐付寶會員編號|1558355|data-support-plan|前往付款|銀行帳號|銀行轉帳|LINE Pay 帳號|街口帳號/;
 

@@ -1782,9 +1782,9 @@ function buildSeoStyles() {
   `;
 }
 __name(buildSeoStyles, "buildSeoStyles");
-function htmlResponse(request, body, { status: object = 200, cacheControl = "no-store", scriptNonce = "", noindex = false } = {}) {
+function htmlResponse(request, body, { status = 200, cacheControl = "no-store", scriptNonce = "", noindex = false } = {}) {
     return applySecurityHeaders(request, new Response(body, {
-        status: object,
+        status,
         headers: {
             "content-type": "text/html; charset=utf-8",
             "cache-control": cacheControl,
@@ -1848,9 +1848,9 @@ function renderSeoLayout(request, options = {}) {
         scriptNonce
     })}
     <link rel="stylesheet" href="/tokens.css?v=20260726-mobile-style-v1" />
-    <link rel="stylesheet" href="/lofi.css?v=20260905-free-site-v1" />
+    <link rel="stylesheet" href="/lofi.css?v=20261116-local-v1" />
     <link id="bootstrapCoreStyles" rel="stylesheet" href="/vendor/bootstrap-twetq.min.css?v=20260819-bootstrap-production-v1" media="not all" />
-    <script src="/bootstrap-loader.ts?v=20260905-free-site-v1"></script>
+    <script src="/bootstrap-loader.js?v=20261116-local-v1"></script>
     <style>${buildSeoStyles()}</style>
   </head>
   <body data-mode="${pageMode}"${referencePageClass ? ` class="${referencePageClass}"` : ""}>
@@ -1909,7 +1909,7 @@ function renderSeoLayout(request, options = {}) {
     </footer>
     </div>
     <script src="/vendor/vue.global.prod.js?v=3.5.40"></script>
-    <script src="/vue-shell.ts?v=20260905-free-site-v1"></script>
+    <script src="/vue-shell.js?v=20261116-local-v1"></script>
   </body>
 </html>`;
     return htmlResponse(request, page, { status, scriptNonce, noindex: shouldNoindex });
@@ -1983,7 +1983,7 @@ function isTrustedOrigin(origin, request) {
     return getAllowedOrigins(request).has(origin);
 }
 __name(isTrustedOrigin, "isTrustedOrigin");
-function getCorsHeadersForRequest(request, { allowCredentials: object = false } = {}) {
+function getCorsHeadersForRequest(request, { allowCredentials = false } = {}) {
     const origin = request.headers.get("origin") || "";
     if (!isTrustedOrigin(origin, request))
         return {};
@@ -1996,7 +1996,7 @@ function getCorsHeadersForRequest(request, { allowCredentials: object = false } 
     };
 }
 __name(getCorsHeadersForRequest, "getCorsHeadersForRequest");
-function applyTrustedCors(request, response, { allowCredentials: object = false } = {}) {
+function applyTrustedCors(request, response, { allowCredentials = false } = {}) {
     const headers = getCorsHeadersForRequest(request, { allowCredentials });
     if (!Object.keys(headers).length)
         return response;
@@ -2006,7 +2006,7 @@ function applyTrustedCors(request, response, { allowCredentials: object = false 
     return next;
 }
 __name(applyTrustedCors, "applyTrustedCors");
-function finalizeApiResponse(request, response, { allowCredentials: object = false, noindex = false } = {}) {
+function finalizeApiResponse(request, response, { allowCredentials = false, noindex = false } = {}) {
     const next = new Response(response.body, response);
     next.headers.delete("access-control-allow-origin");
     next.headers.delete("access-control-allow-methods");
@@ -2151,7 +2151,7 @@ async function recordAuthRateLimitResult(env, bucket, action, success) {
        updated_at = excluded.updated_at`).bind(bucket, failures, windowStartedAt, blockedUntil, now).run();
 }
 __name(recordAuthRateLimitResult, "recordAuthRateLimitResult");
-function buildCspHeader(scriptNonce = "", { reportOnly: object = false } = {}) {
+function buildCspHeader(scriptNonce = "", { reportOnly = false } = {}) {
     const directives = [
         "default-src 'self'",
         "base-uri 'self'",
@@ -2165,7 +2165,7 @@ function buildCspHeader(scriptNonce = "", { reportOnly: object = false } = {}) {
         "connect-src 'self'",
         "frame-src https://www.google.com"
     ];
-    if (!object)
+    if (!reportOnly)
         directives.push("upgrade-insecure-requests");
     return directives.join("; ");
 }
@@ -4307,7 +4307,7 @@ async function fetchPodcastLatestAnalysis(ep = "", env = {}, options = {}) {
     };
 }
 __name(fetchPodcastLatestAnalysis, "fetchPodcastLatestAnalysis");
-function podcastAnalysisFallback({ episode: object = "", title = "", fallback = "", stocks = [], industries = [] } = {}) {
+function podcastAnalysisFallback({ episode = "", title = "", fallback = "", stocks = [], industries = [] } = {}) {
     const summary = String(fallback || "").trim() || "\u672C\u96C6\u9010\u5B57\u7A3F\u76EE\u524D\u6C92\u6709\u8DB3\u5920\u5167\u5BB9\u53EF\u4F9B\u5206\u6790，\u8ACB\u56DE\u5230\u539F\u59CB\u97F3\u8A0A\u6216\u9010\u5B57\u7A3F\u78BA\u8A8D。";
     const stockText = stocks.length ? stocks.join("、") : "\u672C\u96C6\u672A\u89E3\u6790\u51FA\u660E\u78BA\u500B\u80A1\u6216 ETF";
     const industryText = industries.length ? industries.join("、") : "\u672C\u96C6\u672A\u6BD4\u5C0D\u5230\u660E\u78BA\u7522\u696D\u5206\u985E";
@@ -4945,8 +4945,8 @@ async function serveHomeSpaPage(request, env) {
         fetchAssetText(env, "/index.html"),
         fetchAssetText(env, "/tokens.css"),
         fetchAssetText(env, "/lofi.css"),
-        fetchAssetText(env, "/vue-shell.ts"),
-        fetchAssetText(env, "/app.ts")
+        fetchAssetText(env, "/vue-shell.js"),
+        fetchAssetText(env, "/app.js")
     ]);
     const snapshot = pathname === "/" ? await readMarketSnapshotCache(env).catch(() => null) : null;
     const indexes = pathname === "/" ? getCachedMarketIndexes() : null;
@@ -4958,7 +4958,10 @@ async function serveHomeSpaPage(request, env) {
     const noindex = ["/podcast", "/support", "/service", "/privacy", "/refund", "/disclaimer"].includes(pathname);
     const pageTitles = {
         "/podcast": `\u6240\u6709\u96C6\u6578 | ${SITE_NAME}`,
-        "/about": `\u95DC\u65BC\u672C\u7AD9 | ${SITE_NAME}`
+        "/about": `\u95DC\u65BC\u672C\u7AD9 | ${SITE_NAME}`,
+        "/market": `\u5E02\u5834\u7E3D\u89BD | ${SITE_NAME}`,
+        "/institutional": `\u6CD5\u4EBA\u7C4C\u78BC | ${SITE_NAME}`,
+        "/screen": `\u9078\u80A1 | ${SITE_NAME}`
     };
     const pageTitle = pageTitles[pathname] || `${SITE_NAME}\uFF5C\u7BC0\u76EE\u6458\u8981\u3001\u7522\u696D\u8207\u500B\u80A1\u7814\u7A76`;
     const meta = buildSeoHead(request, {
@@ -4980,14 +4983,17 @@ async function serveHomeSpaPage(request, env) {
   `;
     const crawlerSummaries = {
         "/": `<article data-crawler-summary><h2>\u5F9E Podcast \u8B70\u984C\u56DE\u5230\u53EF\u67E5\u6838\u7684\u53F0\u80A1\u8CC7\u6599</h2><p>TWETQ \u5340\u5206\u7BC0\u76EE\u76F4\u63A5\u63D0\u53CA、\u7CFB\u7D71\u5EF6\u4F38\u7522\u696D\u8207\u5B98\u65B9\u5E02\u5834\u8CC7\u6599，\u907F\u514D\u628A\u76F8\u95DC\u80A1\u7968\u8AA4\u5BEB\u6210\u7BC0\u76EE\u63A8\u85A6。\u672C\u7AD9\u4EE5\u516C\u958B\u9010\u5B57\u7A3F\u5EFA\u7ACB\u8B70\u984C\u8108\u7D61，\u518D\u7528 TWSE、TPEx、TAIFEX \u8207 MOPS \u8CC7\u6599\u4EA4\u53C9\u67E5\u6838。</p><p><a href="/podcast/680">\u95B1\u8B80 Azusa \u7684\u4EE3\u8868\u5206\u6790：EP680</a></p></article>`,
-        "/about": `<article data-crawler-summary id="author-azusa"><h2>\u4F5C\u8005、\u7814\u7A76\u65B9\u6CD5\u8207 AI \u5354\u4F5C</h2><p>\u4F5C\u8005\u4F7F\u7528\u7B46\u540D Azusa，\u5B9A\u4F4D\u70BA\u7368\u7ACB\u8CC7\u6599\u6574\u7406\u8207\u7814\u7A76\u5BEB\u4F5C\u8005，\u4E0D\u4EE3\u8868 Podcast \u88FD\u4F5C\u65B9、\u4E3B\u6301\u4EBA、\u4EA4\u6613\u6240\u6216\u6295\u8CC7\u9867\u554F\u6A5F\u69CB。</p><p>\u7814\u7A76\u6D41\u7A0B\u70BA：\u95B1\u8B80\u9010\u5B57\u7A3F、\u5340\u5206\u76F4\u63A5\u63D0\u53CA\u7684\u500B\u80A1\u8207\u7522\u696D、\u6838\u5C0D\u5B98\u65B9\u8CC7\u6599、\u63D0\u51FA\u53CD\u9762\u689D\u4EF6\u8207\u9650\u5236，\u6700\u5F8C\u9644\u4E0A\u4F86\u6E90。AI \u5354\u52A9\u6574\u7406\u8349\u7A3F\u8207\u6AA2\u67E5\u4E00\u81F4\u6027；Azusa \u8CA0\u8CAC\u4F86\u6E90\u9078\u64C7、\u5167\u5BB9\u4FEE\u6539\u8207\u767C\u5E03\u6C7A\u5B9A。</p><p>\u6240\u6709\u5167\u5BB9\u8207\u7814\u7A76\u5DE5\u5177\u5747\u514D\u8CBB\u516C\u958B；\u53EA\u6709\u5305\u542B\u539F\u5275\u554F\u7B54、\u4F86\u6E90\u8207\u9650\u5236，\u4E14\u7531 Azusa \u78BA\u8A8D\u767C\u5E03\u7684\u9801\u9762\u624D\u9032\u5165 sitemap，\u81EA\u52D5\u6458\u8981\u9801\u7DAD\u6301 noindex。</p><p><a href="/podcast/680">\u67E5\u770B\u4EE3\u8868\u4F5C\u54C1 EP680</a>。</p></article>`
+        "/about": `<article data-crawler-summary id="author-azusa"><h2>\u4F5C\u8005、\u7814\u7A76\u65B9\u6CD5\u8207 AI \u5354\u4F5C</h2><p>\u4F5C\u8005\u4F7F\u7528\u7B46\u540D Azusa，\u5B9A\u4F4D\u70BA\u7368\u7ACB\u8CC7\u6599\u6574\u7406\u8207\u7814\u7A76\u5BEB\u4F5C\u8005，\u4E0D\u4EE3\u8868 Podcast \u88FD\u4F5C\u65B9、\u4E3B\u6301\u4EBA、\u4EA4\u6613\u6240\u6216\u6295\u8CC7\u9867\u554F\u6A5F\u69CB。</p><p>\u7814\u7A76\u6D41\u7A0B\u70BA：\u95B1\u8B80\u9010\u5B57\u7A3F、\u5340\u5206\u76F4\u63A5\u63D0\u53CA\u7684\u500B\u80A1\u8207\u7522\u696D、\u6838\u5C0D\u5B98\u65B9\u8CC7\u6599、\u63D0\u51FA\u53CD\u9762\u689D\u4EF6\u8207\u9650\u5236，\u6700\u5F8C\u9644\u4E0A\u4F86\u6E90。AI \u5354\u52A9\u6574\u7406\u8349\u7A3F\u8207\u6AA2\u67E5\u4E00\u81F4\u6027；Azusa \u8CA0\u8CAC\u4F86\u6E90\u9078\u64C7、\u5167\u5BB9\u4FEE\u6539\u8207\u767C\u5E03\u6C7A\u5B9A。</p><p>\u6240\u6709\u5167\u5BB9\u8207\u7814\u7A76\u5DE5\u5177\u5747\u514D\u8CBB\u516C\u958B；\u53EA\u6709\u5305\u542B\u539F\u5275\u554F\u7B54、\u4F86\u6E90\u8207\u9650\u5236，\u4E14\u7531 Azusa \u78BA\u8A8D\u767C\u5E03\u7684\u9801\u9762\u624D\u9032\u5165 sitemap，\u81EA\u52D5\u6458\u8981\u9801\u7DAD\u6301 noindex。</p><p><a href="/podcast/680">\u67E5\u770B\u4EE3\u8868\u4F5C\u54C1 EP680</a>。</p></article>`,
+        "/market": `<article data-crawler-summary><h2>\u5E02\u5834\u7E3D\u89BD：\u6307\u6578、\u671F\u8CA8\u8207\u8CC7\u91D1\u6D41\u5411</h2><p>\u6574\u7406\u52A0\u6B0A\u6307\u6578、\u6AC3\u8CB7\u6307\u6578、\u53F0\u6307\u671F\u65E5\u76E4\u8207\u591C\u76E4，\u4EE5\u53CA\u4E0A\u5E02\u6AC3\u6210\u4EA4\u91D1\u984D\u8207\u6F32\u8DCC\u5BB6\u6578，\u8CC7\u6599\u4F86\u81EA TWSE、TPEx、TAIFEX \u5B98\u65B9 OpenAPI，\u4E26\u6A19\u793A\u8CC7\u6599\u6642\u9593。</p><p><a href="/institutional">\u67E5\u770B\u6CD5\u4EBA\u7C4C\u78BC</a> \u6216\u7528 <a href="/screen">\u9078\u80A1\u689D\u4EF6</a> \u7E2E\u5C0F\u7BC4\u570D。</p></article>`,
+        "/institutional": `<article data-crawler-summary><h2>\u6CD5\u4EBA\u7C4C\u78BC：\u4E09\u5927\u6CD5\u4EBA\u8CB7\u8CE3\u8D85\u8207\u671F\u8CA8\u90E8\u4F4D</h2><p>\u5F59\u6574\u5916\u8CC7、\u6295\u4FE1、\u81EA\u71DF\u5546\u73FE\u8CA8\u8CB7\u8CE3\u8D85、\u9023\u7E8C\u8CB7\u8D85\u5929\u6578\u8207\u671F\u8CA8\u672A\u5E73\u5009\u91CF，\u4E26\u6A19\u8A3B\u5B98\u65B9\u63ED\u9732\u65E5\u671F，\u65B9\u4FBF\u5C0D\u7167\u7BC0\u76EE\u63D0\u53CA\u7684\u500B\u80A1\u8207\u7522\u696D。</p><p>\u8CC7\u6599\u50C5\u4F9B\u7814\u7A76\u53C3\u8003，\u8ACB\u898B <a href="/disclaimer">\u8CC7\u6599\u8AAA\u660E</a>。</p></article>`,
+        "/screen": `<article data-crawler-summary><h2>\u9078\u80A1：\u7528\u5B98\u65B9\u8CC7\u6599\u8A2D\u5B9A\u53EF\u91CD\u73FE\u7684\u689D\u4EF6</h2><p>\u4EE5\u6210\u4EA4\u91D1\u984D、\u672C\u76CA\u6BD4、\u6B96\u5229\u7387、\u80A1\u50F9\u5340\u9593\u8207\u6280\u8853\u8A0A\u865F\u7BE9\u9078\u53F0\u80A1，\u7D50\u679C\u53EF\u56DE\u5230\u500B\u80A1\u9801\u6838\u5C0D\u539F\u59CB\u6578\u5B57。</p><p>\u5148\u770B <a href="/market">\u5E02\u5834\u7E3D\u89BD</a> \u638C\u63E1\u5927\u76E4，\u518D\u8A2D\u5B9A\u689D\u4EF6。</p></article>`
     };
     const crawlerSummary = crawlerSummaries[pathname] || "";
     const next = html
         .replace(/<link rel="stylesheet" href="\/tokens\.css[^"]*" \/>/, `<style data-twetq-inline="tokens">${tokensCss.replace(/<\/style/gi, "<\\/style")}</style>`)
         .replace(/<link rel="stylesheet" href="\/lofi\.css[^"]*" \/>/, `<style data-twetq-inline="site">${siteCss.replace(/<\/style/gi, "<\\/style")}</style>`)
-        .replace(/<script src="\/vue-shell\.ts[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="shell">${vueShellJs.replace(/<\/script/gi, "<\\/script")}</script>`)
-        .replace(/<script src="\/app\.ts[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="app">${appJs.replace(/<\/script/gi, "<\\/script")}</script>`)
+        .replace(/<script src="\/vue-shell\.js[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="shell">${vueShellJs.replace(/<\/script/gi, "<\\/script")}</script>`)
+        .replace(/<script src="\/app\.js[^"]*"><\/script>/, `<script nonce="${scriptNonce}" data-twetq-inline="app">${appJs.replace(/<\/script/gi, "<\\/script")}</script>`)
         .replace(/<title>[\s\S]*?<\/title>/i, `<title>${pageTitle}</title>`)
         .replace("</head>", `${meta}${summary}</head>`)
         .replace('<section id="resultSlot"></section>', `<section id="resultSlot">${crawlerSummary}</section>`);
@@ -6051,7 +6057,7 @@ var worker_default = {
         if (isPageMethod && cleanPath.startsWith("/guide/")) {
             return Response.redirect(new URL("/", request.url), 302);
         }
-        if (isPageMethod && ["/podcast", "/about", "/service", "/privacy", "/refund", "/disclaimer"].includes(cleanPath)) {
+        if (isPageMethod && ["/podcast", "/about", "/service", "/privacy", "/refund", "/disclaimer", "/market", "/institutional", "/screen", "/screener"].includes(cleanPath)) {
             return await serveHomeSpaPage(request, env);
         }
         if (isPageMethod && cleanPath.startsWith("/stock/")) {

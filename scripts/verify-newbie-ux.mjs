@@ -9,6 +9,8 @@ const stagingReference = readFileSync(new URL("../public/staging-reference.js", 
 const legacyCss = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
 const vueShell = readFileSync(new URL("../public/vue-shell.js", import.meta.url), "utf8");
 const worker = readFileSync(new URL("../src/worker.js", import.meta.url), "utf8");
+// worker.js 以 \uXXXX 轉義保存中文；需要比對中文字面的斷言改用這份還原後文本
+const workerText = worker.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 const manifest = readFileSync(new URL("../public/site.webmanifest", import.meta.url), "utf8");
 const podcastEditorial = JSON.parse(readFileSync(new URL("../public/data/podcast-editorial.json", import.meta.url), "utf8"));
 const stockSummary = app.slice(app.indexOf("function renderStockTerminalSummary"), app.indexOf("function renderStockMetricMatrix"));
@@ -174,10 +176,10 @@ assert.match(worker, /\.\.\.options\.includeBodyText \? \{ bodyText \} : \{\}/, 
 assert.match(worker, /function findPodcastReport[\s\S]{0,500}podcastEpisodeNumber\(item\) === Number\(padded\)/, "podcast routes must match the exact episode instead of treating EP1 as EP199");
 assert.match(worker, /\.seo-stock-table \{[\s\S]{0,260}display: table !important;[\s\S]{0,260}min-width: 0 !important;[\s\S]{0,260}inline-size: 100% !important;[\s\S]{0,260}table-layout: fixed !important;/, "direct stock tables must fill the card body");
 assert.match(directPodcastPage, /fetchPodcastLatestAnalysis\(ep, env, \{ force: false, includeBodyText: true \}\)/, "direct podcast pages must provide every transcript to the shared AI analysis path");
-assert.match(worker, /PODCAST_PROFESSIONAL_QUESTIONS = \[[\s\S]{0,800}核心投資命題[\s\S]{0,800}財務表現、估值與資本配置[\s\S]{0,800}主要風險、反方情境[\s\S]{0,800}可量化指標/, "all episodes must use the same six professional research dimensions");
-assert.match(worker, /env\.AI\.run\(PODCAST_AI_ANALYSIS_MODEL,[\s\S]{0,2500}questions \u5FC5\u9808\u6070\u597D 6 \u7B46[\s\S]{0,500}<transcript>/, "AzusaQ must use the optional AI provider to generate exactly six transcript-based analyses");
+assert.match(workerText, /PODCAST_PROFESSIONAL_QUESTIONS = \[[\s\S]{0,800}核心投資命題[\s\S]{0,800}財務表現、估值與資本配置[\s\S]{0,800}主要風險、反方情境[\s\S]{0,800}可量化指標/, "all episodes must use the same six professional research dimensions");
+assert.match(workerText, /env\.AI\.run\(PODCAST_AI_ANALYSIS_MODEL,[\s\S]{0,2500}questions \u5FC5\u9808\u6070\u597D 6 \u7B46[\s\S]{0,500}<transcript>/, "AzusaQ must use the optional AI provider to generate exactly six transcript-based analyses");
 assert.match(worker, /PODCAST_AI_ANALYSIS_CACHE_PREFIX[\s\S]{0,300}sha256Base64\(bodyText\)[\s\S]{0,500}readPodcastCacheByKey/, "AI analyses must reuse the existing content-addressed podcast cache");
-assert.match(worker, /function normalizePodcastTaiwanText[\s\S]{0,1800}人工智能[\s\S]{0,1800}industry[\s\S]{0,1000}function normalizePodcastAiAnalysis/, "AI output must be normalized to Taiwan Traditional Chinese in the shared path");
+assert.match(workerText, /function normalizePodcastTaiwanText[\s\S]{0,1800}人工智能[\s\S]{0,1800}industry[\s\S]{0,1000}function normalizePodcastAiAnalysis/, "AI output must be normalized to Taiwan Traditional Chinese in the shared path");
 assert.match(worker, /function normalizePodcastAiAnalysis[\s\S]{0,1400}PODCAST_PROFESSIONAL_QUESTIONS\[index\][\s\S]{0,800}answer\.length >= 40[\s\S]{0,800}questions\.length !== 6/, "AI analysis validation must require exactly six usable professional answers");
 assert.match(worker, /async function buildPodcastAiOriginalAnalysis[\s\S]{0,1200}attempt < 2/, "invalid model output must be retried once for every episode");
 assert.match(directPodcastPage, /buildPodcastAiOriginalAnalysis\(env,[\s\S]{0,700}data-podcast-analysis="ai"/, "every episode, including EP680, must retain the shared published-analysis summary");
@@ -277,7 +279,7 @@ assert.match(app, /名稱資料缺漏/, "podcast related stocks must expose miss
 assert.match(app, /在外部音訊服務播放（離開本站）/, "MP3 links must describe their destination");
 assert.match(worker, /在外部音訊服務播放（離開本站）/, "direct podcast MP3 links must describe their destination");
 assert.match(worker, /tokens\.css\?v=20260726-mobile-style-v1/, "direct pages must load the current design tokens");
-assert.match(worker, /lofi\.css\?v=20260905-free-site-v1/, "direct pages must load the shared site stylesheet");
+assert.match(worker, /lofi\.css\?v=20261116-local-v1/, "direct pages must load the shared site stylesheet");
 assert.match(worker, /data-twetq-inline="tokens"[\s\S]{0,600}data-twetq-inline="site"/, "SPA pages must inline their critical styles");
 assert.match(worker, /data-twetq-inline="shell"[\s\S]{0,600}data-twetq-inline="app"/, "SPA pages must inline their critical scripts");
 assert.match(worker, /<header class="app-header">[\s\S]{0,1800}data-research-nav|<header class="app-header">/, "direct pages must reuse the shared header shell");
@@ -361,8 +363,8 @@ assert.match(layoutLayer, /body\[data-mode="help"\] #resultSlot \.help-section-g
 assert.match(layoutLayer, /#resultSlot \.metric-card \.metric-tag[\s\S]{0,220}color:\s*var\(--editorial-accent\) !important/, "metric tags must retain readable unified contrast");
 assert.match(index, /<body data-mode="home">/, "the homepage design layer must not depend on JavaScript startup");
 assert.match(index, /tokens\.css\?v=20260726-mobile-style-v1/, "mobile clients need a fresh design-token cache key");
-assert.match(index, /lofi\.css\?v=20260905-free-site-v1/, "mobile clients need a fresh stylesheet cache key");
-assert.match(index, /app\.js\?v=20260905-free-site-v1/, "mobile clients need a fresh application script cache key");
+assert.match(index, /lofi\.css\?v=20261116-local-v1/, "mobile clients need a fresh stylesheet cache key");
+assert.match(index, /app\.js\?v=20261116-local-v1/, "mobile clients need a fresh application script cache key");
 assert.ok(podcastLayoutLayer.startsWith(podcastLayoutMarker), "the Podcast layout bridge must stay explicit");
 assert.match(podcastLayoutLayer, /home-dashboard\.home-podcast-dashboard[\s\S]{0,160}grid-template-columns:\s*minmax\(0,\s*1fr\)/, "the previous skin must not restore the removed home sidebar gap");
 assert.match(podcastLayoutLayer, /home-episode-list,\s*\.home-tool-links\)[\s\S]{0,180}grid-template-columns:\s*minmax\(0,\s*1fr\)/, "home content must reuse the previous editorial row rhythm");

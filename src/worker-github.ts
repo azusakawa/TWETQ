@@ -1703,9 +1703,9 @@ const function renderSeoLayout(request: Request: Request, options: object: objec
     scriptNonce
   })}
     <link rel="stylesheet" href="/tokens.css?v=20260726-mobile-style-v1" />
-    <link rel="stylesheet" href="/lofi.css?v=20260905-free-site-v1" />
+    <link rel="stylesheet" href="/lofi.css?v=20261116-local-v1" />
     <link id="bootstrapCoreStyles" rel="stylesheet" href="/vendor/bootstrap-twetq.min.css?v=20260819-bootstrap-production-v1" media="not all" />
-    <script src="/bootstrap-loader.ts?v=20260905-free-site-v1"></script>
+    <script src="/bootstrap-loader.ts?v=20261116-local-v1"></script>
     <style>${buildSeoStyles()}</style>
   </head>
   <body data-mode="${pageMode}"${referencePageClass ? ` class="${referencePageClass}"` : ""}>
@@ -1764,7 +1764,7 @@ const function renderSeoLayout(request: Request: Request, options: object: objec
     </footer>
     </div>
     <script src="/vendor/vue.global.prod.js?v=3.5.40"></script>
-    <script src="/vue-shell.ts?v=20260905-free-site-v1"></script>
+    <script src="/vue-shell.ts?v=20261116-local-v1"></script>
   </body>
 </html>`;
   return htmlResponse(request, page, { status, scriptNonce, noindex: shouldNoindex });
