@@ -12,7 +12,7 @@
       location.reload();
     });
     window.addEventListener("load", () => navigator.serviceWorker
-      .register("/sw.js?v=20260905-free-site-v1", { updateViaCache: "none" })
+      .register("/sw.js?v=20261116-local-v1", { updateViaCache: "none" })
       .then((registration) => registration.update())
       .catch(() => {}));
   }

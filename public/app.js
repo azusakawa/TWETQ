@@ -12078,6 +12078,24 @@ function bindModeLink(element, mode) {
   });
 }
 
+// 導覽列可能由 staging-reference.js 之類的模組在初始化後重建，
+// 因此以事件委派處理 data-mode-link，避免重新產生節點後點擊失效。
+document.addEventListener("click", (event) => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const target = event.target instanceof Element ? event.target.closest("[data-mode-link]") : null;
+  if (!target) return;
+  event.preventDefault();
+  const mode = target.getAttribute("data-mode-link");
+  if (mode === "podcast") {
+    podcastView = "episodes";
+    podcastSearchEp = "";
+    podcastEpisodeVisibleCount = PODCAST_EPISODE_PAGE_SIZE;
+    setMode(mode, { force: currentMode === mode });
+    return;
+  }
+  setMode(mode);
+});
+
 navToggleButton?.addEventListener("click", () => {
   setSiteNavOpen(!siteNavOpen);
 });

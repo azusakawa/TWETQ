@@ -102,7 +102,7 @@ async function fetchAsset(request) {
     return new Response(request.method === "HEAD" ? null : body, {
       status: 200,
       headers: {
-        "cache-control": extname(filePath) === ".html" ? "no-cache" : "public, max-age=3600",
+        "cache-control": "no-cache",
         "content-type": mimeTypes.get(extname(filePath).toLowerCase()) || "application/octet-stream",
       },
     });

@@ -1,0 +1,62 @@
+{
+  "navigation": {
+    "home": "Latest Episode",
+    "allEpisodes": "All Episodes",
+    "podcast": "Podcast",
+    "menu": "Menu",
+    "openMenu": "Open Menu",
+    "closeMenu": "Close Menu",
+    "backToTop": "Back to Top",
+    "skipToMain": "Skip to main content",
+    "brandTagline": "Starting from each episode, verifying with market data",
+    "navLabel": "Podcast Navigation",
+    "mainSections": "Main Sections",
+    "seoNav": "Breadcrumb"
+  },
+  "podcast": {
+    "latestEpisode": "Latest Episode",
+    "episodeTitle": "All Episodes",
+    "transcript": "Transcript",
+    "fullTranscript": "Full Transcript",
+    "viewTranscript": "View Full Transcript",
+    "viewTranscriptSource": "View Transcript Source (leaves this site)",
+    "audioOpen": "Open external audio",
+    "audioExternal": "(leaves this site)",
+    "noEnoughContent": "This episode does not have enough transcript content for analysis. Please check the original audio or transcript.",
+    "noStocksFound": "No explicit stocks identified for this episode; the extended list below does not represent podcast endorsement or direct mention.",
+    "noIndustriesFound": "No explicit industry classification matched for this episode.",
+    "systemExtended": "The following content is extended by the system based on industry classification, not directly mentioned in the episode; collapsed by default, related stocks show only when expanded.",
+    "systemExtendedLabel": "System Extended Industries",
+    "directStocks": "Directly Mentioned Stocks",
+    "noStocksToShow": "No related stocks to display at this time.",
+    "noIndustriesToShow": "No extendable industry classification matched for this episode."
+  },
+  "analysis": {
+    "question3": "What are the supply-demand dynamics, competitive landscape, and value chain impacts of related industries?",
+    "question4": "What variables need verification regarding financial performance, valuation, and capital allocation?",
+    "question5": "What are the main risks, bear cases, and conditions under which the thesis fails?",
+    "question6": "What quantifiable indicators should be tracked next, and what are the professional conclusions?"
+  },
+  "pages": {
+    "aboutPage": "Usage Guide",
+    "servicePage": "Terms of Service",
+    "privacyPage": "Privacy Policy",
+    "refundPage": "Refund Policy",
+    "disclaimerPage": "Disclaimer"
+  },
+  "footer": {
+    "sources": "Data sources include TWSE, TPEx, and TAEX. This site is for personal academic research and contextual analysis as a non-profit value-added use. Data accuracy is not guaranteed and does not constitute investment advice."
+  },
+  "system": {
+    "moreTools": "More Tools",
+    "readMore": "Read More",
+    "published": "Published",
+    "noNameData": "Name data missing",
+    "noIndustryData": "Industry name data missing"
+  },
+  "site": {
+    "name": "TWETQ Podcast Insights",
+    "shortName": "TWETQ",
+    "description": "Using Podcast as an entry point, we organize key points, transcript sources, mentioned industries and stocks from each episode, and connect official Taiwan stock market data as research assistance. This site is a non-official content curation platform."
+  }
+}

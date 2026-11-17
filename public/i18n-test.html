@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i18n 測試 - TWETQ Podcast</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    h1 { color: #20313d; }
+    .locale-test { margin: 20px 0; }
+    .locale-test h2 { border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .translation-item { padding: 5px 0; border-bottom: 1px dashed #eee; }
+    .key { font-weight: bold; color: #666; }
+    .value { color: #333; }
+    .lang-switch { display: flex; gap: 10px; margin: 20px 0; }
+    .lang-switch button { padding: 8px 16px; cursor: pointer; }
+    .lang-switch button.active { background: #20313d; color: white; }
+  </style>
+</head>
+<body>
+  <h1>i18n 測試頁面</h1>
+  <p>測試多語言翻譯功能是否正常運作。</p>
+  
+  <div class="lang-switch">
+    <button class="active" data-locale="zh-TW">中文 (台灣)</button>
+    <button data-locale="en-US">English (US)</button>
+  </div>
+  
+  <div class="locale-test" id="test-container">
+    <h2>翻譯結果</h2>
+  </div>
+  
+  <script type="module">
+    async function testTranslations() {
+      const container = document.getElementById('test-container');
+      
+      try {
+        // 載入翻譯檔
+        const response = await fetch('/i18n/zh-TW.json');
+        const data = await response.json();
+        
+        let html = '';
+        
+        // 顯示所有分類和翻譯
+        for (const [category, values] of Object.entries(data)) {
+          if (category.startsWith('_')) continue;
+          
+          html += '<h3>' + category + '</h3><div>';
+          
+          for (const [key, value] of Object.entries(values)) {
+            if (category === 'analysis') {
+              html += '<div class="translation-item">';
+              html += '<span class="key">' + key + ':</span> ';
+              html += '<span class="value">' + (typeof value === 'function' ? '(function)' : value) + '</span>';
+              html += '</div>';
+            } else {
+              html += '<div class="translation-item">';
+              html += '<span class="key">' + key + ':</span> ';
+              html += '<span class="value">' + (typeof value === 'function' ? '(function)' : value) + '</span>';
+              html += '</div>';
+            }
+          }
+          
+          html += '</div>';
+        }
+        
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = '<p>載入翻譯失敗: ' + e.message + '</p>';
+      }
+    }
+    
+    // 語言切換
+    document.querySelectorAll('.lang-switch button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const locale = btn.dataset.locale;
+        document.querySelectorAll('.lang-switch button').forEach(b => {
+          b.classList.remove('active');
+        });
+        btn.classList.add('active');
+        
+        try {
+          const response = await fetch('/i18n/' + locale + '.json');
+          const data = await response.json();
+          
+          let html = '';
+          for (const [category, values] of Object.entries(data)) {
+            if (category.startsWith('_')) continue;
+            
+            html += '<h3>' + category + '</h3><div>';
+            
+            for (const [key, value] of Object.entries(values)) {
+              html += '<div class="translation-item">';
+              html += '<span class="key">' + key + ':</span> ';
+              html += '<span class="value">' + (typeof value === 'function' ? '(function)' : value) + '</span>';
+              html += '</div>';
+            }
+            
+            html += '</div>';
+          }
+          
+          document.getElementById('test-container').innerHTML = html;
+        } catch (e) {
+          document.getElementById('test-container').innerHTML = '<p>載入翻譯失敗: ' + e.message + '</p>';
+        }
+      });
+    });
+    
+    // 初始載入
+    testTranslations();
+  </script>
+</body>
+</html>
